@@ -15,7 +15,7 @@ namespace Game.Scripts.Logic
         private const int BOARD_WIDTH = 10;
         private const float CELL_SIZE = 0.9f;
         
-        private TargetBlock[,] _grid;
+        private TargetBlock[,] _grid = new TargetBlock[0, 0];
 
         private Vector3 _bottomLeftCornerPos;
         
@@ -27,11 +27,12 @@ namespace Game.Scripts.Logic
             if (!CanInitialize(targetBlocks))
                 return;
 
-            _targetBlockPool = TargetBlockPool.Instance;
+            _targetBlockPool ??= TargetBlockPool.Instance;
+
+            ClearGrid();
+            EnsureGrid(CalculateBoardHeight(targetBlocks.Length));
 
             _bottomLeftCornerPos = boardVisualMeshRenderer.bounds.min;
-            
-            Clear();
             CreateTargetBlocks(targetBlocks);
         }
 
@@ -46,9 +47,6 @@ namespace Game.Scripts.Logic
 
         private void CreateTargetBlocks(TargetBlockData[] targetBlocks)
         {
-            int boardHeight = CalculateBoardHeight(targetBlocks.Length);
-            _grid = new TargetBlock[BOARD_WIDTH, boardHeight];
-
             for (int i = 0; i < targetBlocks.Length; i++)
             {
                 TargetBlockData targetBlockData = targetBlocks[i];
@@ -64,7 +62,7 @@ namespace Game.Scripts.Logic
                 TargetBlock targetBlock = _targetBlockPool.GetObject(true);
                 targetBlock.transform.position = GetTargetBlockPosition(x, z);
                 targetBlock.transform.rotation = Quaternion.identity;
-                targetBlock.transform.SetParent(parent);
+                targetBlock.transform.SetParent(parent, true);
 
                 targetBlock.Initialize(targetBlockData);
                 
@@ -77,6 +75,21 @@ namespace Game.Scripts.Logic
             return Mathf.CeilToInt((float)targetBlockCount / BOARD_WIDTH);
         }
 
+        /// <summary>
+        /// Checks if new allocation required or not
+        /// </summary>
+        /// <param name="boardHeight"></param>
+        private void EnsureGrid(int boardHeight)
+        {
+            if (_grid.GetLength(0) == BOARD_WIDTH &&
+                _grid.GetLength(1) == boardHeight)
+            {
+                return;
+            }
+
+            _grid = new TargetBlock[BOARD_WIDTH, boardHeight];
+        }
+
         private Vector3 GetTargetBlockPosition(int x, int z)
         {
             return new Vector3(
@@ -85,29 +98,21 @@ namespace Game.Scripts.Logic
                 _bottomLeftCornerPos.z + (z + 0.5f) * CELL_SIZE);
         }
 
-        private void Clear()
+        private void ClearGrid()
         {
-            DestroyTargetBlocks();
-        }
-
-        // TODO: Object Pool
-        private void DestroyTargetBlocks()
-        {
-            if (_grid == null)
-                return;
-
-            foreach (TargetBlock targetBlock in _grid)
+            for (int x = 0; x < _grid.GetLength(0); x++)
             {
-                if (targetBlock == null)
-                    continue;
+                for (int z = 0; z < _grid.GetLength(1); z++)
+                {
+                    TargetBlock targetBlock = _grid[x, z];
 
-                if (Application.isPlaying)
-                    Destroy(targetBlock.gameObject);
-                else
-                    DestroyImmediate(targetBlock.gameObject);
+                    if (targetBlock == null)
+                        continue;
+
+                    _targetBlockPool.PullObjectBackImmediate(targetBlock);
+                    _grid[x, z] = null;
+                }
             }
-
-            _grid = null;
         }
     }
 }
