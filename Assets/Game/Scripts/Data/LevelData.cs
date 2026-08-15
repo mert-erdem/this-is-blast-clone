@@ -1,16 +1,14 @@
 using System;
-using Game.Scripts.Data;
 
-[Serializable]
-public class LevelData
+namespace Game.Scripts.Data
 {
-    public int boardWidth;
+    [Serializable]
+    public class LevelData
+    {
+        public int queueWidth; // Cannon queue width (changing in next levels)
     
-    public int boardHeight;
-
-    public int queueWidth; // Cannon queue width (changing in next levels)
+        public TargetBlockData[] targetBlocks;
     
-    public TargetBlockData[] blocks;
-    
-    public CannonData[] cannons;
+        public CannonData[] cannons;
+    }
 }

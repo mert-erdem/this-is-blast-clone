@@ -1,4 +1,5 @@
 using Game.Scripts.Core;
+using Game.Scripts.Data;
 using UnityEngine;
 
 namespace Game.Scripts.Logic
@@ -27,7 +28,7 @@ namespace Game.Scripts.Logic
 
             LevelData levelData = JsonUtility.FromJson<LevelData>(levelJson.text);
 
-            board.Initialize(levelData);
+            board.Initialize(levelData.targetBlocks);
         }
     }
 }
