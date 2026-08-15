@@ -6,13 +6,13 @@ namespace Game.Scripts.Logic
 {
     public class LevelGenerator : Singleton<LevelGenerator>
     {
-        [SerializeField] private Board board;
         [SerializeField] private int currentLevel = 1; // PlayerPrefs later
 
         protected override void Awake()
         {
             base.Awake();
             
+            // TODO: Can be called from a GameManager to separate from MonoBehaviour
             Generate();
         }
 
@@ -28,7 +28,8 @@ namespace Game.Scripts.Logic
 
             LevelData levelData = JsonUtility.FromJson<LevelData>(levelJson.text);
 
-            board.Initialize(levelData.targetBlocks);
+            Board.Instance.Initialize(levelData.targetBlocks);
+            CannonManager.Instance.Initialize(levelData.queueWidth, levelData.cannons);
         }
     }
 }

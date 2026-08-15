@@ -11,7 +11,7 @@ namespace Game.Scripts.Core
         {
             if (_instance == null)
                 _instance = this as T;
-            else
+            else if (_instance != this)
                 Destroy(gameObject);
         }
     }

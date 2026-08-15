@@ -1,12 +1,15 @@
-using Game.Scripts.Common;
+using Game.Scripts.Core;
 using Game.Scripts.Data;
 using Game.Scripts.Enums;
 using UnityEngine;
 
 namespace Game.Scripts.Entities
 {
-    public class Cannon : MonoBehaviour
+    public class Cannon : MonoBehaviour, IPoolObject
     {
+        public bool IsSpawned { get; set; }
+        public GameObject GameObject => gameObject;
+        
         private BlockColor _color;
         private int _ammo;
     
@@ -27,6 +30,14 @@ namespace Game.Scripts.Entities
         private void Paint(Color color)
         {
             
+        }
+        
+        public void OnSpawn()
+        {
+        }
+
+        public void OnDespawn()
+        {
         }
     }
 }

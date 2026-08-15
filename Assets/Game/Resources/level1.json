@@ -1,5 +1,5 @@
 {
-  "queueWidth": 3,
+  "queueWidth": 5,
   "targetBlocks": [
     { "color": 0, "health": 1 },
     { "color": 1, "health": 1 },
@@ -55,6 +55,8 @@
     { "color": 1, "ammo": 3 },
     { "color": 2, "ammo": 3 },
     { "color": 3, "ammo": 3 },
+    { "color": 0, "ammo": 2 },
+    { "color": 1, "ammo": 2 },
     { "color": 0, "ammo": 2 },
     { "color": 1, "ammo": 2 }
   ]
