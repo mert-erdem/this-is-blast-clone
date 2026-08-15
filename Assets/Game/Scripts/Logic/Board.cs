@@ -1,6 +1,7 @@
 using Game.Scripts.Core;
 using Game.Scripts.Data;
 using Game.Scripts.Entities;
+using Game.Scripts.ObjectPools;
 using UnityEngine;
 
 namespace Game.Scripts.Logic
@@ -17,11 +18,16 @@ namespace Game.Scripts.Logic
         private TargetBlock[,] _grid;
 
         private Vector3 _bottomLeftCornerPos;
+        
+        // External Classes
+        private ObjectPool<TargetBlock, TargetBlockPool> _targetBlockPool;
 
         public void Initialize(TargetBlockData[] targetBlocks)
         {
             if (!CanInitialize(targetBlocks))
                 return;
+
+            _targetBlockPool = TargetBlockPool.Instance;
 
             _bottomLeftCornerPos = boardVisualMeshRenderer.bounds.min;
             
@@ -54,13 +60,14 @@ namespace Game.Scripts.Logic
                 int z = i / BOARD_WIDTH;
 
                 Transform parent = targetBlocksParent != null ? targetBlocksParent : transform;
-                TargetBlock targetBlock = Instantiate(
-                    targetBlockPrefab,
-                    GetTargetBlockPosition(x, z),
-                    Quaternion.identity,
-                    parent);
+                
+                TargetBlock targetBlock = _targetBlockPool.GetObject(true);
+                targetBlock.transform.position = GetTargetBlockPosition(x, z);
+                targetBlock.transform.rotation = Quaternion.identity;
+                targetBlock.transform.SetParent(parent);
 
                 targetBlock.Initialize(targetBlockData);
+                
                 _grid[x, z] = targetBlock;
             }
         }
