@@ -1,8 +1,11 @@
+using System;
 using Game.Scripts.Core;
 using Game.Scripts.Data;
 using Game.Scripts.Entities;
+using Game.Scripts.Enums;
 using Game.Scripts.ObjectPools;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace Game.Scripts.Logic
 {
@@ -11,6 +14,8 @@ namespace Game.Scripts.Logic
         [SerializeField] private TargetBlock targetBlockPrefab;
         [SerializeField] private Transform targetBlocksParent;
         [SerializeField] private MeshRenderer boardVisualMeshRenderer;
+        
+        public event Action OnBoardStateChanged;
 
         private const int BOARD_WIDTH = 10;
         private const float CELL_SIZE = 0.9f;
@@ -34,6 +39,39 @@ namespace Game.Scripts.Logic
 
             _bottomLeftCornerPos = boardVisualMeshRenderer.bounds.min;
             CreateTargetBlocks(targetBlocks);
+        }
+
+        public bool TryGetTarget(BlockColor color, out TargetBlock target)
+        {
+            target = null;
+            
+            int width = _grid.GetLength(0);
+            int height = _grid.GetLength(1);
+
+            for (int i = 0; i < width; i++)
+            {
+                for (int j = 0; j < height; j++)
+                {
+                    TargetBlock targetBlock = _grid[i, j];
+
+                    if (targetBlock == null)
+                        continue;
+
+                    // Found the front block of this column.
+                    if (targetBlock.GetColor() == color && !targetBlock.IsReserved)
+                    {
+                        targetBlock.Reserve();
+                        target = targetBlock;
+                        
+                        return true;
+                    }
+
+                    // Front block doesn't match.
+                    break;
+                }
+            }
+
+            return false;
         }
 
         private bool CanInitialize(TargetBlockData[] targetBlocks)
@@ -64,10 +102,36 @@ namespace Game.Scripts.Logic
                 targetBlock.transform.rotation = Quaternion.identity;
                 targetBlock.transform.SetParent(parent, true);
 
-                targetBlock.Initialize(targetBlockData);
+                targetBlock.Initialize(targetBlockData, new Vector2Int(x, z));
+                targetBlock.OnDestroyed += RemoveTargetBlock;
                 
                 _grid[x, z] = targetBlock;
             }
+        }
+        
+        private void RemoveTargetBlock(TargetBlock targetBlock)
+        {
+            if (targetBlock == null)
+                return;
+
+            Vector2Int gridPosition = targetBlock.GetGridPosition();
+
+            int x = gridPosition.x;
+            int z = gridPosition.y;
+
+            if (_grid[x, z] != targetBlock)
+                return;
+
+            _grid[x, z] = null;
+
+            targetBlock.OnDestroyed -= RemoveTargetBlock;
+            
+            _targetBlockPool.PullObjectBackImmediate(targetBlock);
+
+            // TODO: Column Shifting Logic
+            // ShiftColumnForward(x, z);
+
+            OnBoardStateChanged?.Invoke();
         }
 
         private static int CalculateBoardHeight(int targetBlockCount)
@@ -100,17 +164,17 @@ namespace Game.Scripts.Logic
 
         private void ClearGrid()
         {
-            for (int x = 0; x < _grid.GetLength(0); x++)
+            for (int i = 0; i < _grid.GetLength(0); i++)
             {
-                for (int z = 0; z < _grid.GetLength(1); z++)
+                for (int j = 0; j < _grid.GetLength(1); j++)
                 {
-                    TargetBlock targetBlock = _grid[x, z];
+                    TargetBlock targetBlock = _grid[i, j];
 
                     if (targetBlock == null)
                         continue;
 
                     _targetBlockPool.PullObjectBackImmediate(targetBlock);
-                    _grid[x, z] = null;
+                    _grid[i, j] = null;
                 }
             }
         }

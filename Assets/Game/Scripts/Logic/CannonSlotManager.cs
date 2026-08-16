@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using Game.Scripts.Core;
 using Game.Scripts.Entities;
 using UnityEngine;
@@ -7,23 +9,28 @@ namespace Game.Scripts.Logic
     public class CannonSlotManager : Singleton<CannonSlotManager>
     {
         [SerializeField] private Transform[] slots;
-        private Cannon[] _activeCannons;
+        
+        public event Action<Cannon> OnCannonAdded;
+        
+        private Cannon[] _cannonSlots;
 
         public void Initialize()
         {
-            _activeCannons = new Cannon[slots.Length];
+            _cannonSlots = new Cannon[slots.Length];
         }
 
         public bool TryAddCannon(Cannon cannon)
         {
-            for (int i = 0; i < _activeCannons.Length; i++)
+            for (int i = 0; i < _cannonSlots.Length; i++)
             {
-                if (_activeCannons[i] != null)
+                if (_cannonSlots[i] != null)
                     continue;
 
-                _activeCannons[i] = cannon;
+                _cannonSlots[i] = cannon;
                 cannon.transform.position = slots[i].position;
 
+                OnCannonAdded?.Invoke(cannon);
+                
                 return true;
             }
 
@@ -32,14 +39,16 @@ namespace Game.Scripts.Logic
 
         public void RemoveCannon(Cannon cannon)
         {
-            for (int i = 0; i < _activeCannons.Length; i++)
+            for (int i = 0; i < _cannonSlots.Length; i++)
             {
-                if (_activeCannons[i] != cannon)
+                if (_cannonSlots[i] != cannon)
                     continue;
 
-                _activeCannons[i] = null;
+                _cannonSlots[i] = null;
                 return;
             }
         }
+        
+        public IReadOnlyList<Cannon> CannonSlots => _cannonSlots;
     }
 }
