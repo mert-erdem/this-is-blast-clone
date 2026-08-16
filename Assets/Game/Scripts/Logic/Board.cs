@@ -22,6 +22,9 @@ namespace Game.Scripts.Logic
 
         private Vector3 _bottomLeftCornerPos;
         
+        // TWEEN PROPERTIES
+        private const float TWEEN_SHIFT_DURATION = 0.5f;
+        
         // External Classes
         private ObjectPool<TargetBlock, TargetBlockPool> _targetBlockPool;
 
@@ -61,6 +64,9 @@ namespace Game.Scripts.Logic
                 }
 
                 if (frontBlock == null)
+                    continue;
+
+                if (!frontBlock.IsFireable)
                     continue;
 
                 if (frontBlock.GetColor() != color)
@@ -128,8 +134,6 @@ namespace Game.Scripts.Logic
             
             _targetBlockPool.PullObjectBackImmediate(targetBlock);
 
-            OnBoardStateChanged?.Invoke();
-
             ShiftColumnForward(i, j);
         }
 
@@ -149,8 +153,13 @@ namespace Game.Scripts.Logic
 
                 Vector2Int newGridPosition = new Vector2Int(i, j - 1);
                 targetBlock.SetGridPosition(newGridPosition);
-                targetBlock.transform.position = GetTargetBlockPosition(newGridPosition.x, newGridPosition.y);
+                targetBlock.MoveTo(
+                    GetTargetBlockPosition(newGridPosition.x, newGridPosition.y),
+                    TWEEN_SHIFT_DURATION,
+                    () => OnBoardStateChanged?.Invoke());
             }
+
+            OnBoardStateChanged?.Invoke();
         }
 
         private static int CalculateBoardHeight(int targetBlockCount)
