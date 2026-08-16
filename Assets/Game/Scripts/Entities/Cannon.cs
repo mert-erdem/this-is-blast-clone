@@ -1,3 +1,4 @@
+using Game.ScriptableObjects;
 using Game.Scripts.Core;
 using Game.Scripts.Data;
 using Game.Scripts.Enums;
@@ -7,6 +8,9 @@ namespace Game.Scripts.Entities
 {
     public class Cannon : MonoBehaviour, IPoolObject
     {
+        [SerializeField] private MeshRenderer meshRenderer;
+        [SerializeField] private BlockColorSo blockColorSo;
+        
         public bool IsSpawned { get; set; }
         public GameObject GameObject => gameObject;
         
@@ -19,7 +23,7 @@ namespace Game.Scripts.Entities
             _color = data.color;
             _ammo = data.ammo;
             
-            // Paint(Helper.ToUnityColor(_color));
+            Paint(_color);
         }
 
         private void Fire(Vector3 targetPos)
@@ -27,9 +31,9 @@ namespace Game.Scripts.Entities
             // TODO: Animation and etc.
         }
 
-        private void Paint(Color color)
+        private void Paint(BlockColor blockColor)
         {
-            
+            meshRenderer.sharedMaterial = blockColorSo.GetMaterial(blockColor);
         }
         
         public void OnSpawn()

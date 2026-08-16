@@ -157,3 +157,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d1c88ba37cdb4e4bae7f60f8e773f74, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Scripts.Entities.Cannon
+  meshRenderer: {fileID: 2236709497592834562}
+  blockColorSo: {fileID: 11400000, guid: f0984eb7e0711428f8e818b02c210f7b, type: 2}

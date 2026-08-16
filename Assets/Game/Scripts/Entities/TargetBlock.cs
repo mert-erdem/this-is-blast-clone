@@ -1,3 +1,4 @@
+using Game.ScriptableObjects;
 using Game.Scripts.Core;
 using Game.Scripts.Data;
 using Game.Scripts.Enums;
@@ -7,6 +8,9 @@ namespace Game.Scripts.Entities
 {
     public class TargetBlock : MonoBehaviour, IPoolObject
     {
+        [SerializeField] private MeshRenderer meshRenderer;
+        [SerializeField] private BlockColorSo blockColorSo;
+        
         public bool IsSpawned { get; set; }
         public GameObject GameObject => gameObject;
         
@@ -19,14 +23,7 @@ namespace Game.Scripts.Entities
             _color = data.color;
             _health = data.health;
             
-            // Paint(Helper.ToUnityColor(_color));
-        }
-        
-        private void Die(){}
-
-        private void Paint(Color color)
-        {
-            
+            Paint(_color);
         }
         
         public void OnSpawn()
@@ -35,6 +32,13 @@ namespace Game.Scripts.Entities
 
         public void OnDespawn()
         {
+        }
+        
+        private void Die(){}
+
+        private void Paint(BlockColor blockColor)
+        {
+            meshRenderer.sharedMaterial = blockColorSo.GetMaterial(blockColor);
         }
     }
 }
