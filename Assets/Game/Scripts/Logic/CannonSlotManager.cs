@@ -46,10 +46,10 @@ namespace Game.Scripts.Logic
                     continue;
 
                 _cannonSlots[i] = null;
+                OnCannonRemoved?.Invoke(cannon);
+                
                 return;
             }
-            
-            OnCannonRemoved?.Invoke(cannon);
         }
         
         public IReadOnlyList<Cannon> CannonSlots => _cannonSlots;
