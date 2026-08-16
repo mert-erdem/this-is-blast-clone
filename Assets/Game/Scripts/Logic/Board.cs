@@ -5,13 +5,11 @@ using Game.Scripts.Entities;
 using Game.Scripts.Enums;
 using Game.Scripts.ObjectPools;
 using UnityEngine;
-using UnityEngine.Events;
 
 namespace Game.Scripts.Logic
 {
     public class Board : Singleton<Board>
     {
-        [SerializeField] private TargetBlock targetBlockPrefab;
         [SerializeField] private Transform targetBlocksParent;
         [SerializeField] private MeshRenderer boardVisualMeshRenderer;
         
@@ -94,20 +92,20 @@ namespace Game.Scripts.Logic
                 if (targetBlockData == null)
                     continue;
 
-                int x = i % BOARD_WIDTH;
-                int z = i / BOARD_WIDTH;
+                int columnIndex = i % BOARD_WIDTH;
+                int rowIndex = i / BOARD_WIDTH;
 
                 Transform parent = targetBlocksParent != null ? targetBlocksParent : transform;
                 
                 TargetBlock targetBlock = _targetBlockPool.GetObject(true);
-                targetBlock.transform.position = GetTargetBlockPosition(x, z);
+                targetBlock.transform.position = GetTargetBlockPosition(columnIndex, rowIndex);
                 targetBlock.transform.rotation = Quaternion.identity;
                 targetBlock.transform.SetParent(parent, true);
 
-                targetBlock.Initialize(targetBlockData, new Vector2Int(x, z));
+                targetBlock.Initialize(targetBlockData, new Vector2Int(columnIndex, rowIndex));
                 targetBlock.OnDestroyed += RemoveTargetBlock;
                 
-                _grid[x, z] = targetBlock;
+                _grid[columnIndex, rowIndex] = targetBlock;
             }
         }
         
@@ -118,22 +116,41 @@ namespace Game.Scripts.Logic
 
             Vector2Int gridPosition = targetBlock.GetGridPosition();
 
-            int x = gridPosition.x;
-            int z = gridPosition.y;
+            int i = gridPosition.x;
+            int j = gridPosition.y;
 
-            if (_grid[x, z] != targetBlock)
+            if (_grid[i, j] != targetBlock)
                 return;
 
-            _grid[x, z] = null;
+            _grid[i, j] = null;
 
             targetBlock.OnDestroyed -= RemoveTargetBlock;
             
             _targetBlockPool.PullObjectBackImmediate(targetBlock);
 
-            // TODO: Column Shifting Logic
-            // ShiftColumnForward(x, z);
-
             OnBoardStateChanged?.Invoke();
+
+            ShiftColumnForward(i, j);
+        }
+
+        private void ShiftColumnForward(int i, int emptyJ)
+        {
+            int height = _grid.GetLength(1);
+
+            for (int j = emptyJ + 1; j < height; j++)
+            {
+                TargetBlock targetBlock = _grid[i, j];
+
+                _grid[i, j - 1] = targetBlock;
+                _grid[i, j] = null;
+
+                if (targetBlock == null)
+                    continue;
+
+                Vector2Int newGridPosition = new Vector2Int(i, j - 1);
+                targetBlock.SetGridPosition(newGridPosition);
+                targetBlock.transform.position = GetTargetBlockPosition(newGridPosition.x, newGridPosition.y);
+            }
         }
 
         private static int CalculateBoardHeight(int targetBlockCount)
@@ -156,12 +173,12 @@ namespace Game.Scripts.Logic
             _grid = new TargetBlock[BOARD_WIDTH, boardHeight];
         }
 
-        private Vector3 GetTargetBlockPosition(int x, int z)
+        private Vector3 GetTargetBlockPosition(int i, int j)
         {
             return new Vector3(
-                _bottomLeftCornerPos.x + (x + 0.5f) * CELL_SIZE,
+                _bottomLeftCornerPos.x + (i + 0.5f) * CELL_SIZE,
                 boardVisualMeshRenderer.bounds.max.y,
-                _bottomLeftCornerPos.z + (z + 0.5f) * CELL_SIZE);
+                _bottomLeftCornerPos.z + (j + 0.5f) * CELL_SIZE);
         }
 
         private void ClearGrid()
@@ -175,6 +192,7 @@ namespace Game.Scripts.Logic
                     if (targetBlock == null)
                         continue;
 
+                    targetBlock.OnDestroyed -= RemoveTargetBlock;
                     _targetBlockPool.PullObjectBackImmediate(targetBlock);
                     _grid[i, j] = null;
                 }

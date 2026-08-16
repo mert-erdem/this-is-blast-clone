@@ -46,6 +46,11 @@ namespace Game.Scripts.Entities
             return _gridPosition;
         }
 
+        public void SetGridPosition(Vector2Int gridPosition)
+        {
+            _gridPosition = gridPosition;
+        }
+
         public BlockColor GetColor()
         {
             return _color;
