@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Collections.Generic;
 using Game.Scripts.Entities;
 using Game.Scripts.Enums;
 using UnityEngine;
@@ -9,6 +11,11 @@ namespace Game.Scripts.Logic
         // They are singletons (to see dependencies, DI container can be added later)
         [SerializeField] private Board board;
         [SerializeField] private CannonSlotManager cannonSlotManager;
+        
+        private const float FIRE_INTERVAL = 0.05f;
+        private static readonly WaitForSeconds FireIntervalWait = new(FIRE_INTERVAL);
+        
+        private readonly HashSet<Cannon> _firingCannons = new();
 
         private void Awake()
         {
@@ -21,15 +28,30 @@ namespace Game.Scripts.Logic
             if (cannon == null || !cannon.HasAmmo || !cannon.IsReadyToFire)
                 return;
 
-            while (cannon.HasAmmo && board.TryGetTarget(cannon.GetColor(), out TargetBlock target))
+            if (_firingCannons.Contains(cannon))
+                return;
+
+            StartCoroutine(FireRoutine(cannon));
+        }
+
+        // WaitForSeconds used due to achieve firing delta per cannon.
+        private IEnumerator FireRoutine(Cannon cannon)
+        {
+            _firingCannons.Add(cannon);
+
+            while (cannon != null &&
+                   cannon.HasAmmo &&
+                   cannon.IsReadyToFire &&
+                   board.TryGetTarget(cannon.GetColor(), out TargetBlock target))
             {
                 cannon.Fire(target);
+                yield return FireIntervalWait;
             }
 
-            if (!cannon.HasAmmo)
-            {
+            _firingCannons.Remove(cannon);
+
+            if (cannon != null && !cannon.HasAmmo)
                 cannonSlotManager.RemoveCannon(cannon);
-            }
         }
 
         private void ReevaluateCannons()
@@ -38,7 +60,7 @@ namespace Game.Scripts.Logic
             {
                 Cannon cannon = cannonSlotManager.CannonSlots[i];
 
-                if (cannon == null || !cannon.HasAmmo)
+                if (cannon == null || !cannon.HasAmmo || !cannon.IsReadyToFire)
                     continue;
 
                 if (HasEarlierSameColorCannon(i, cannon.GetColor()))
@@ -60,7 +82,7 @@ namespace Game.Scripts.Logic
             {
                 Cannon cannon = cannonSlotManager.CannonSlots[i];
 
-                if (cannon == null || !cannon.HasAmmo || !cannon.IsReadyToFire)
+                if (cannon == null || !cannon.HasAmmo)
                     continue;
 
                 if (cannon.GetColor() == color)
