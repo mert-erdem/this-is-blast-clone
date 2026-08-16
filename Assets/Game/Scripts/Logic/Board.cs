@@ -22,6 +22,8 @@ namespace Game.Scripts.Logic
 
         private Vector3 _bottomLeftCornerPos;
         
+        private int _totalTargetBlocks;
+        
         // TWEEN PROPERTIES
         private const float TWEEN_SHIFT_DURATION = 0.5f;
         private const float TWEEN_DESTROY_DURATION = 0.2f;
@@ -41,6 +43,8 @@ namespace Game.Scripts.Logic
 
             _bottomLeftCornerPos = boardVisualMeshRenderer.bounds.min;
             CreateTargetBlocks(targetBlocks);
+            
+            _totalTargetBlocks = targetBlocks.Length;
         }
 
         public bool TryGetTarget(BlockColor color, out TargetBlock target)
@@ -137,8 +141,15 @@ namespace Game.Scripts.Logic
                     return;
 
                 _grid[i, j] = null;
+                _totalTargetBlocks--;
                 _targetBlockPool.PullObjectBackImmediate(targetBlock);
                 ShiftColumnForward(i, j);
+                
+                // WIN CONDITION
+                if (_totalTargetBlocks == 0)
+                {
+                    GameManager.ActionLevelPassed?.Invoke();
+                }
             });
         }
 

@@ -132,8 +132,6 @@ namespace Game.Scripts.Entities
             transform.localScale = _initialScale;
         }
         
-        private void Die(){}
-
         private void Paint(BlockColor blockColor)
         {
             meshRenderer.sharedMaterial = blockColorSo.GetMaterial(blockColor);
