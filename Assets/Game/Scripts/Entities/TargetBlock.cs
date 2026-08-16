@@ -25,14 +25,21 @@ namespace Game.Scripts.Entities
         private BlockColor _color;
         private int _health;
         private Vector2Int _gridPosition;
+        
+        // Tween Related
         private Tween _moveTween;
+        private Tween _scaleTween;
+        private Vector3 _initialScale;
 
         // Will be used by ObjectPool
         public void Initialize(TargetBlockData data, Vector2Int gridPosition)
         {
             _moveTween?.Kill();
             _moveTween = null;
+            _scaleTween?.Kill();
+            _scaleTween = null;
             IsMoving = false;
+            transform.localScale = _initialScale;
             
             _color = data.color;
             _health = data.health;
@@ -85,6 +92,23 @@ namespace Game.Scripts.Entities
                 });
         }
 
+        public void PlayDestroyTween(float duration, Action onComplete = null)
+        {
+            _scaleTween?.Kill();
+
+            IsMoving = true;
+            
+            _scaleTween = transform
+                .DOScale(Vector3.zero, duration)
+                .SetEase(Ease.InBack)
+                .OnComplete(() =>
+                {
+                    IsMoving = false;
+                    _scaleTween = null;
+                    onComplete?.Invoke();
+                });
+        }
+
         public BlockColor GetColor()
         {
             return _color;
@@ -92,13 +116,20 @@ namespace Game.Scripts.Entities
         
         public void OnSpawn()
         {
+            if (_initialScale == Vector3.zero)
+                _initialScale = transform.localScale;
+
+            transform.localScale = _initialScale;
         }
 
         public void OnDespawn()
         {
             _moveTween?.Kill();
             _moveTween = null;
+            _scaleTween?.Kill();
+            _scaleTween = null;
             IsMoving = false;
+            transform.localScale = _initialScale;
         }
         
         private void Die(){}

@@ -24,6 +24,7 @@ namespace Game.Scripts.Logic
         
         // TWEEN PROPERTIES
         private const float TWEEN_SHIFT_DURATION = 0.5f;
+        private const float TWEEN_DESTROY_DURATION = 0.2f;
         
         // External Classes
         private ObjectPool<TargetBlock, TargetBlockPool> _targetBlockPool;
@@ -128,13 +129,17 @@ namespace Game.Scripts.Logic
             if (_grid[i, j] != targetBlock)
                 return;
 
-            _grid[i, j] = null;
-
             targetBlock.OnDestroyed -= RemoveTargetBlock;
-            
-            _targetBlockPool.PullObjectBackImmediate(targetBlock);
 
-            ShiftColumnForward(i, j);
+            targetBlock.PlayDestroyTween(TWEEN_DESTROY_DURATION, () =>
+            {
+                if (_grid[i, j] != targetBlock)
+                    return;
+
+                _grid[i, j] = null;
+                _targetBlockPool.PullObjectBackImmediate(targetBlock);
+                ShiftColumnForward(i, j);
+            });
         }
 
         private void ShiftColumnForward(int i, int emptyJ)
