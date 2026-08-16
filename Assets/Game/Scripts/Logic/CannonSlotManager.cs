@@ -11,6 +11,7 @@ namespace Game.Scripts.Logic
         [SerializeField] private Transform[] slots;
         
         public event Action<Cannon> OnCannonAdded;
+        public event Action<Cannon> OnCannonRemoved;
         
         private Cannon[] _cannonSlots;
 
@@ -48,7 +49,7 @@ namespace Game.Scripts.Logic
                 return;
             }
             
-            // TODO: Remove cannon via CannonManager
+            OnCannonRemoved?.Invoke(cannon);
         }
         
         public IReadOnlyList<Cannon> CannonSlots => _cannonSlots;

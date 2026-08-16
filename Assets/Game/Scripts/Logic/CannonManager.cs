@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Game.Scripts.Core;
 using Game.Scripts.Data;
@@ -53,6 +54,8 @@ namespace Game.Scripts.Logic
                 _cannonQueues[queueIndex].Enqueue(cannon);
                 _activeCannons.Add(cannon);
             }
+
+            cannonSlotManager.OnCannonRemoved += RemoveCannon;
         }
 
         public bool TrySelect(Cannon cannon)
@@ -120,6 +123,19 @@ namespace Game.Scripts.Logic
             }
 
             _activeCannons.Clear();
+        }
+
+        private void RemoveCannon(Cannon cannon)
+        {
+            if (cannon == null) return;
+            
+            _activeCannons.Remove(cannon);
+            _cannonPool.PullObjectBackImmediate(cannon);
+        }
+
+        private void OnDestroy()
+        {
+            cannonSlotManager.OnCannonRemoved -= RemoveCannon;
         }
     }
 }

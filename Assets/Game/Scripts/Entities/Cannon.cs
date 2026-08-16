@@ -40,8 +40,9 @@ namespace Game.Scripts.Entities
             if (targetBlock == null || !HasAmmo)
                 return;
 
-            targetBlock.TakeDamage(DAMAGE);
             _ammo--;
+
+            targetBlock.TakeDamage(DAMAGE);
         }
 
         private void Paint(BlockColor blockColor)
