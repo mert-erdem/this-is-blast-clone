@@ -9,6 +9,8 @@ namespace Game.Scripts.Logic
 {
     public class CannonManager : Singleton<CannonManager>
     {
+        [SerializeField] private CannonSlotManager cannonSlotManager;
+        
         [SerializeField] private Transform cannonQueuesMidpoint;
         [SerializeField] private float horizontalSpacing = 1f;
         [SerializeField] private float queueSpacing = 1f;
@@ -51,6 +53,27 @@ namespace Game.Scripts.Logic
                 _cannonQueues[queueIndex].Enqueue(cannon);
                 _activeCannons.Add(cannon);
             }
+        }
+
+        public bool TrySelect(Cannon cannon)
+        {
+            if (cannon == null || _cannonQueues == null)
+                return false;
+
+            foreach (Queue<Cannon> queue in _cannonQueues)
+            {
+                if (queue.Count == 0 || queue.Peek() != cannon)
+                    continue;
+
+                if (!cannonSlotManager.TryAddCannon(cannon))
+                    return false;
+
+                queue.Dequeue();
+                
+                return true;
+            }
+
+            return false;
         }
 
         private Vector3 GetCannonPosition(int queueIndex, int queueDepth, int queueWidth)
