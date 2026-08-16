@@ -18,7 +18,7 @@ namespace Game.Scripts.Logic
 
         private void TryFire(Cannon cannon)
         {
-            if (cannon == null || !cannon.HasAmmo)
+            if (cannon == null || !cannon.HasAmmo || !cannon.IsReadyToFire)
                 return;
 
             while (cannon.HasAmmo && board.TryGetTarget(cannon.GetColor(), out TargetBlock target))
@@ -60,7 +60,7 @@ namespace Game.Scripts.Logic
             {
                 Cannon cannon = cannonSlotManager.CannonSlots[i];
 
-                if (cannon == null || !cannon.HasAmmo)
+                if (cannon == null || !cannon.HasAmmo || !cannon.IsReadyToFire)
                     continue;
 
                 if (cannon.GetColor() == color)

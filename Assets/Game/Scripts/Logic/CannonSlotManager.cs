@@ -14,6 +14,8 @@ namespace Game.Scripts.Logic
         public event Action<Cannon> OnCannonRemoved;
         
         private Cannon[] _cannonSlots;
+        
+        private const float TWEEN_SLOT_DURATION = 1f;
 
         public void Initialize()
         {
@@ -28,9 +30,7 @@ namespace Game.Scripts.Logic
                     continue;
 
                 _cannonSlots[i] = cannon;
-                cannon.transform.position = slots[i].position;
-
-                OnCannonAdded?.Invoke(cannon);
+                cannon.MoveToSlot(slots[i].position, TWEEN_SLOT_DURATION, () => OnCannonAdded?.Invoke(cannon));
                 
                 return true;
             }
