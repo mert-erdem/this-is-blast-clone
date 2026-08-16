@@ -13,6 +13,8 @@ namespace Game.Scripts.Entities
         
         public bool IsSpawned { get; set; }
         public GameObject GameObject => gameObject;
+        
+        public bool HasAmmo => _ammo > 0;
 
         private const int DAMAGE = 1;
         
@@ -35,18 +37,11 @@ namespace Game.Scripts.Entities
 
         public void Fire(TargetBlock targetBlock)
         {
-            if (targetBlock == null || _ammo <= 0)
+            if (targetBlock == null || !HasAmmo)
                 return;
 
-            // TODO: Animation and etc.
             targetBlock.TakeDamage(DAMAGE);
-
             _ammo--;
-
-            if (_ammo <= 0)
-            {
-                // TODO: Remove/despawn cannon after its last valid shot.
-            }
         }
 
         private void Paint(BlockColor blockColor)

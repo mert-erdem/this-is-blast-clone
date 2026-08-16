@@ -11,8 +11,6 @@ namespace Game.Scripts.Entities
     {
         [SerializeField] private MeshRenderer meshRenderer;
         [SerializeField] private BlockColorSo blockColorSo;
-
-        public bool IsReserved { get; private set; }
         
         public event Action<TargetBlock> OnDestroyed;
         
@@ -51,11 +49,6 @@ namespace Game.Scripts.Entities
         public BlockColor GetColor()
         {
             return _color;
-        }
-
-        public void Reserve()
-        {
-            IsSpawned = true;
         }
         
         public void OnSpawn()

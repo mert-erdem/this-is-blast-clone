@@ -44,31 +44,33 @@ namespace Game.Scripts.Logic
         public bool TryGetTarget(BlockColor color, out TargetBlock target)
         {
             target = null;
-            
+
             int width = _grid.GetLength(0);
             int height = _grid.GetLength(1);
 
             for (int i = 0; i < width; i++)
             {
+                TargetBlock frontBlock = null;
+
                 for (int j = 0; j < height; j++)
                 {
-                    TargetBlock targetBlock = _grid[i, j];
-
-                    if (targetBlock == null)
+                    if (_grid[i, j] == null)
                         continue;
 
-                    // Found the front block of this column.
-                    if (targetBlock.GetColor() == color && !targetBlock.IsReserved)
-                    {
-                        targetBlock.Reserve();
-                        target = targetBlock;
-                        
-                        return true;
-                    }
-
-                    // Front block doesn't match.
+                    frontBlock = _grid[i, j];
+                    
                     break;
                 }
+
+                if (frontBlock == null)
+                    continue;
+
+                if (frontBlock.GetColor() != color)
+                    continue;
+
+                target = frontBlock;
+                
+                return true;
             }
 
             return false;

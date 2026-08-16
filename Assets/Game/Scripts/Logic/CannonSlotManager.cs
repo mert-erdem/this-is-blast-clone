@@ -47,6 +47,8 @@ namespace Game.Scripts.Logic
                 _cannonSlots[i] = null;
                 return;
             }
+            
+            // TODO: Remove cannon via CannonManager
         }
         
         public IReadOnlyList<Cannon> CannonSlots => _cannonSlots;
