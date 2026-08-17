@@ -11,6 +11,7 @@ namespace Game.Scripts.Entities
 {
     public class Cannon : MonoBehaviour, IPoolObject
     {
+        [SerializeField] private Transform transformVisual;
         [SerializeField] private TextMeshPro textAmmo;
         [SerializeField] private MeshRenderer meshRenderer;
         [SerializeField] private BlockColorSo blockColorSo;
@@ -23,16 +24,23 @@ namespace Game.Scripts.Entities
 
         private const int DAMAGE = 1;
         private const float REMOVE_TWEEN_OVERSHOOT = 2.5f;
+        private const float LOOK_TWEEN_DURATION = 0.5f;
+        private const float RETURN_LOOK_TWEEN_DURATION = 0.25f;
         
         private BlockColor _color;
         private int _ammo;
-        private Tween _slotTween;
+
+        // Tween Related
+        private Tween _slotTween, _lookTween;
         private Vector3 _initialScale;
+        private Quaternion _initialVisualRotation;
     
         public void Initialize(CannonData data)
         {
             _slotTween?.Kill();
             _slotTween = null;
+            _lookTween?.Kill();
+            _lookTween = null;
             IsReadyToFire = false;
             transform.localScale = _initialScale;
             
@@ -53,16 +61,27 @@ namespace Game.Scripts.Entities
             return _ammo;
         }
 
-        public void Fire(TargetBlock targetBlock)
+        public void Fire(TargetBlock targetBlock, Action onComplete = null)
         {
             if (targetBlock == null || !HasAmmo || !IsReadyToFire)
+            {
+                onComplete?.Invoke();
                 return;
+            }
 
-            _ammo--;
-            
-            targetBlock.TakeDamage(DAMAGE);
-            
-            SetAmmoText(_ammo);
+            IsReadyToFire = false;
+            LookTargetTween(targetBlock.GetPosition(), () =>
+            {
+                if (targetBlock != null && targetBlock.IsFireable && HasAmmo)
+                {
+                    _ammo--;
+                    targetBlock.TakeDamage(DAMAGE);
+                    SetAmmoText(_ammo);
+                }
+
+                IsReadyToFire = HasAmmo;
+                onComplete?.Invoke();
+            });
         }
 
         public void MoveToSlot(Vector3 slotPosition, float duration, Action onComplete = null)
@@ -101,6 +120,8 @@ namespace Game.Scripts.Entities
         {
             _slotTween?.Kill();
             _slotTween = null;
+            _lookTween?.Kill();
+            _lookTween = null;
             IsReadyToFire = false;
 
             if (duration <= 0f)
@@ -121,6 +142,37 @@ namespace Game.Scripts.Entities
                 });
         }
 
+        // For cannons that has ammo but no target to shoot.
+        public void PlayInitialLookTween()
+        {
+            // If already looking at initial rotation
+            if (Quaternion.Angle(transformVisual.localRotation, _initialVisualRotation) <= 0.1f)
+                return;
+
+            _lookTween?.Kill();
+            _lookTween = null;
+
+            _lookTween = transformVisual
+                .DOLocalRotateQuaternion(_initialVisualRotation, RETURN_LOOK_TWEEN_DURATION)
+                .SetEase(Ease.OutBack)
+                .OnComplete(() => _lookTween = null);
+        }
+
+        private void LookTargetTween(Vector3 targetPosition, Action onComplete = null)
+        {
+            _lookTween?.Kill();
+            _lookTween = null;
+
+            _lookTween = transformVisual
+                .DOLookAt(targetPosition, LOOK_TWEEN_DURATION)
+                .SetEase(Ease.OutBack)
+                .OnComplete(() =>
+                {
+                    _lookTween = null;
+                    onComplete?.Invoke();
+                });
+        }
+
         private void Paint(BlockColor blockColor)
         {
             meshRenderer.sharedMaterial = blockColorSo.GetMaterial(blockColor);
@@ -136,7 +188,10 @@ namespace Game.Scripts.Entities
             if (_initialScale == Vector3.zero)
                 _initialScale = transform.localScale;
 
+            _initialVisualRotation = transformVisual.localRotation;
+
             transform.localScale = _initialScale;
+            transformVisual.localRotation = _initialVisualRotation;
             IsReadyToFire = false;
         }
 
@@ -144,7 +199,10 @@ namespace Game.Scripts.Entities
         {
             _slotTween?.Kill();
             _slotTween = null;
+            _lookTween?.Kill();
+            _lookTween = null;
             transform.localScale = _initialScale;
+            transformVisual.localRotation = _initialVisualRotation;
             IsReadyToFire = false;
         }
     }

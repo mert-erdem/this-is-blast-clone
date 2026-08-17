@@ -84,6 +84,11 @@ namespace Game.Scripts.Entities
             _gridPosition = gridPosition;
         }
 
+        public Vector3 GetPosition()
+        {
+            return transform.position;
+        }
+
         public void MoveTo(Vector3 targetPosition, float duration, Action onComplete = null)
         {
             _moveTween?.Kill();

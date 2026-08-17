@@ -45,11 +45,18 @@ namespace Game.Scripts.Logic
                    cannon.IsReadyToFire &&
                    board.TryGetTarget(cannon.GetColor(), out TargetBlock target))
             {
-                cannon.Fire(target);
-                yield return FireIntervalWait;
+                bool isFireComplete = false;
+                cannon.Fire(target, () => isFireComplete = true);
+                yield return new WaitUntil(() => isFireComplete || cannon == null || !cannon.IsSpawned);
+
+                if (cannon != null && cannon.IsSpawned && cannon.HasAmmo)
+                    yield return FireIntervalWait;
             }
 
             _firingCannons.Remove(cannon);
+
+            if (cannon != null && cannon.IsSpawned && cannon.HasAmmo)
+                cannon.PlayInitialLookTween();
 
             if (cannon != null && !cannon.HasAmmo)
                 cannonSlotManager.RemoveCannon(cannon);
