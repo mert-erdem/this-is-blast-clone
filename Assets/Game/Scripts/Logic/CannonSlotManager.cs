@@ -16,7 +16,7 @@ namespace Game.Scripts.Logic
         public event Action<Cannon> OnCannonAdded;
         public event Action<Cannon> OnCannonRemoved;
         
-        private const float TWEEN_SLOT_DURATION = 1f;
+        private const float TWEEN_SLOT_DURATION = 0.5f;
         
         private Cannon[] _cannonSlots;
 

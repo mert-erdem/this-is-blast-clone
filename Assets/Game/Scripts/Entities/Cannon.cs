@@ -24,6 +24,7 @@ namespace Game.Scripts.Entities
 
         private const int DAMAGE = 1;
         private const float REMOVE_TWEEN_OVERSHOOT = 2.5f;
+        private const float QUEUE_SHIFT_TWEEN_OVERSHOOT = 2f;
         private const float LOOK_TWEEN_DURATION = 0.5f;
         private const float RETURN_LOOK_TWEEN_DURATION = 0.25f;
         
@@ -31,7 +32,7 @@ namespace Game.Scripts.Entities
         private int _ammo;
 
         // Tween Related
-        private Tween _slotTween, _lookTween;
+        private Tween _slotTween, _queueTween, _lookTween;
         private Vector3 _initialScale;
         private Quaternion _initialVisualRotation;
     
@@ -39,6 +40,8 @@ namespace Game.Scripts.Entities
         {
             _slotTween?.Kill();
             _slotTween = null;
+            _queueTween?.Kill();
+            _queueTween = null;
             _lookTween?.Kill();
             _lookTween = null;
             IsReadyToFire = false;
@@ -86,18 +89,52 @@ namespace Game.Scripts.Entities
 
         public void MoveToSlot(Vector3 slotPosition, float duration, Action onComplete = null)
         {
+            PlaySlotRepositionTween(slotPosition, duration, onComplete);
+        }
+
+        public void PlayQueueShiftTween(Vector3 queuePosition, float duration, Action onComplete = null)
+        {
+            _queueTween?.Kill();
+            _queueTween = null;
+
+            IsReadyToFire = false;
+            transform.localScale = _initialScale;
+
+            if (duration <= 0f)
+            {
+                transform.position = queuePosition;
+                onComplete?.Invoke();
+
+                return;
+            }
+
+            _queueTween = transform
+                .DOMove(queuePosition, duration)
+                .SetEase(Ease.OutCubic, QUEUE_SHIFT_TWEEN_OVERSHOOT)
+                .OnComplete(() =>
+                {
+                    _queueTween = null;
+                    IsReadyToFire = false;
+                    onComplete?.Invoke();
+                });
+        }
+
+        private void PlaySlotRepositionTween(Vector3 position, float duration, Action onComplete = null)
+        {
             _slotTween?.Kill();
             _slotTween = null;
+            _queueTween?.Kill();
+            _queueTween = null;
 
             IsReadyToFire = false;
 
             if (duration <= 0f)
             {
-                transform.position = slotPosition;
+                transform.position = position;
                 transform.localScale = _initialScale;
                 IsReadyToFire = true;
                 onComplete?.Invoke();
-                
+
                 return;
             }
 
@@ -106,7 +143,7 @@ namespace Game.Scripts.Entities
 
             _slotTween = DOTween.Sequence()
                 .Append(transform.DOScale(Vector3.zero, scaleDownDuration).SetEase(Ease.InBack))
-                .AppendCallback(() => transform.position = slotPosition)
+                .AppendCallback(() => transform.position = position)
                 .Append(transform.DOScale(_initialScale, scaleUpDuration).SetEase(Ease.OutElastic))
                 .OnComplete(() =>
                 {
@@ -120,6 +157,8 @@ namespace Game.Scripts.Entities
         {
             _slotTween?.Kill();
             _slotTween = null;
+            _queueTween?.Kill();
+            _queueTween = null;
             _lookTween?.Kill();
             _lookTween = null;
             IsReadyToFire = false;
@@ -188,6 +227,13 @@ namespace Game.Scripts.Entities
             if (_initialScale == Vector3.zero)
                 _initialScale = transform.localScale;
 
+            _slotTween?.Kill();
+            _slotTween = null;
+            _queueTween?.Kill();
+            _queueTween = null;
+            _lookTween?.Kill();
+            _lookTween = null;
+
             _initialVisualRotation = transformVisual.localRotation;
 
             transform.localScale = _initialScale;
@@ -199,6 +245,8 @@ namespace Game.Scripts.Entities
         {
             _slotTween?.Kill();
             _slotTween = null;
+            _queueTween?.Kill();
+            _queueTween = null;
             _lookTween?.Kill();
             _lookTween = null;
             transform.localScale = _initialScale;

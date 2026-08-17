@@ -22,6 +22,7 @@ namespace Game.Scripts.Logic
         private ObjectPool<Cannon, CannonPool> _cannonPool;
         
         private const float TWEEN_REMOVE_DURATION = 0.2f;
+        private const float TWEEN_QUEUE_SHIFT_DURATION = 1.5f;
 
         public void Initialize(int queueWidth, CannonData[] cannons)
         {
@@ -74,6 +75,7 @@ namespace Game.Scripts.Logic
                     return false;
 
                 queue.Dequeue();
+                PlayQueueShiftTween(queue);
                 
                 return true;
             }
@@ -235,6 +237,31 @@ namespace Game.Scripts.Logic
             cannon.PlayRemoveFromSlotTween(
                 TWEEN_REMOVE_DURATION, 
                 () => _cannonPool.PullObjectBackImmediate(cannon));
+        }
+
+        private void PlayQueueShiftTween(Queue<Cannon> queue)
+        {
+            if (queue == null || queue.Count == 0 || _cannonQueues == null)
+                return;
+
+            int queueIndex = Array.IndexOf(_cannonQueues, queue);
+
+            if (queueIndex < 0)
+                return;
+
+            Cannon[] cannons = queue.ToArray();
+
+            for (int queueDepth = 0; queueDepth < cannons.Length; queueDepth++)
+            {
+                Cannon cannon = cannons[queueDepth];
+
+                if (cannon == null)
+                    continue;
+
+                cannon.PlayQueueShiftTween(
+                    GetCannonPosition(queueIndex, queueDepth, _cannonQueues.Length),
+                    TWEEN_QUEUE_SHIFT_DURATION);
+            }
         }
 
         private void OnDestroy()
