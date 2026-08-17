@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Game.Scripts.Core;
 using Game.Scripts.Data;
 using Game.Scripts.Entities;
@@ -23,6 +24,7 @@ namespace Game.Scripts.Logic
         private Vector3 _bottomLeftCornerPos;
         
         private int _totalTargetBlocks;
+        private int _movingTargetBlocks;
         
         // TWEEN PROPERTIES
         private const float TWEEN_SHIFT_DURATION = 0.5f;
@@ -45,6 +47,7 @@ namespace Game.Scripts.Logic
             CreateTargetBlocks(targetBlocks);
             
             _totalTargetBlocks = targetBlocks.Length;
+            _movingTargetBlocks = 0;
         }
 
         public bool TryGetTarget(BlockColor color, out TargetBlock target)
@@ -80,6 +83,97 @@ namespace Game.Scripts.Logic
                 target = frontBlock;
                 
                 return true;
+            }
+
+            return false;
+        }
+
+        public bool HasTargetBlocks()
+        {
+            return _totalTargetBlocks > 0;
+        }
+
+        public bool HasMovingBlocks()
+        {
+            return _movingTargetBlocks > 0;
+        }
+
+        /// <summary>
+        /// Optimized front checking way to find the deadlock state.
+        /// </summary>
+        /// <param name="cannons"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        public bool HasFireableFrontBlockMatching(IReadOnlyList<Cannon> cannons)
+        {
+            bool hasRedCannon = false;
+            bool hasGreenCannon = false;
+            bool hasBlueCannon = false;
+            bool hasYellowCannon = false;
+
+            for (int i = 0; i < cannons.Count; i++)
+            {
+                Cannon cannon = cannons[i];
+
+                if (cannon == null || !cannon.HasAmmo || !cannon.IsReadyToFire)
+                    continue;
+
+                switch (cannon.GetColor())
+                {
+                    case BlockColor.Red:
+                        hasRedCannon = true;
+                        break;
+                    case BlockColor.Green:
+                        hasGreenCannon = true;
+                        break;
+                    case BlockColor.Blue:
+                        hasBlueCannon = true;
+                        break;
+                    case BlockColor.Yellow:
+                        hasYellowCannon = true;
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+
+            int width = _grid.GetLength(0);
+            int height = _grid.GetLength(1);
+
+            for (int i = 0; i < width; i++)
+            {
+                TargetBlock frontTargetBlock = null;
+
+                for (int j = 0; j < height; j++)
+                {
+                    if (_grid[i, j] == null)
+                        continue;
+
+                    frontTargetBlock = _grid[i, j];
+
+                    break;
+                }
+
+                if (frontTargetBlock == null || !frontTargetBlock.IsFireable)
+                    continue;
+
+                switch (frontTargetBlock.GetColor())
+                {
+                    case BlockColor.Red:
+                        if (hasRedCannon) return true;
+                        break;
+                    case BlockColor.Green:
+                        if (hasGreenCannon) return true;
+                        break;
+                    case BlockColor.Blue:
+                        if (hasBlueCannon) return true;
+                        break;
+                    case BlockColor.Yellow:
+                        if (hasYellowCannon) return true;
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
             }
 
             return false;
@@ -134,9 +228,12 @@ namespace Game.Scripts.Logic
                 return;
 
             targetBlock.OnDestroyed -= RemoveTargetBlock;
+            _movingTargetBlocks++;
 
             targetBlock.PlayDestroyTween(TWEEN_DESTROY_DURATION, () =>
             {
+                _movingTargetBlocks--;
+
                 if (_grid[i, j] != targetBlock)
                     return;
 
@@ -169,10 +266,15 @@ namespace Game.Scripts.Logic
 
                 Vector2Int newGridPosition = new Vector2Int(i, j - 1);
                 targetBlock.SetGridPosition(newGridPosition);
+                _movingTargetBlocks++;
                 targetBlock.MoveTo(
                     GetTargetBlockPosition(newGridPosition.x, newGridPosition.y),
                     TWEEN_SHIFT_DURATION,
-                    () => OnBoardStateChanged?.Invoke());
+                    () =>
+                    {
+                        _movingTargetBlocks--;
+                        OnBoardStateChanged?.Invoke();
+                    });
             }
 
             OnBoardStateChanged?.Invoke();

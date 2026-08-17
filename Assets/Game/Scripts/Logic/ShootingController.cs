@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Game.Scripts.Core;
 using Game.Scripts.Entities;
 using Game.Scripts.Enums;
 using UnityEngine;
@@ -52,6 +53,8 @@ namespace Game.Scripts.Logic
 
             if (cannon != null && !cannon.HasAmmo)
                 cannonSlotManager.RemoveCannon(cannon);
+
+            CheckDeadlock();
         }
 
         private void ReevaluateCannons()
@@ -68,6 +71,8 @@ namespace Game.Scripts.Logic
 
                 TryFire(cannon);
             }
+
+            CheckDeadlock();
         }
 
         /// <summary>
@@ -90,6 +95,31 @@ namespace Game.Scripts.Logic
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Checking the loss condition when all slots are filled and
+        /// no front target matches any slotted cannon color.
+        /// </summary>
+        private void CheckDeadlock()
+        {
+            if (_firingCannons.Count > 0)
+                return;
+
+            if (!board.HasTargetBlocks())
+                return;
+
+            if (board.HasMovingBlocks())
+                return;
+
+            if (!cannonSlotManager.AreAllSlotsFilled())
+                return;
+
+            if (board.HasFireableFrontBlockMatching(cannonSlotManager.CannonSlots))
+                return;
+
+            // LOSS CONDITION
+            GameManager.ActionGameOver?.Invoke();
         }
 
         private void OnDestroy()

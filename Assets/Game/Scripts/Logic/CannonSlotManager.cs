@@ -10,12 +10,14 @@ namespace Game.Scripts.Logic
     {
         [SerializeField] private Transform[] slots;
         
+        public IReadOnlyList<Cannon> CannonSlots => _cannonSlots;
+        
         public event Action<Cannon> OnCannonAdded;
         public event Action<Cannon> OnCannonRemoved;
         
-        private Cannon[] _cannonSlots;
-        
         private const float TWEEN_SLOT_DURATION = 1f;
+        
+        private Cannon[] _cannonSlots;
 
         public void Initialize()
         {
@@ -34,7 +36,7 @@ namespace Game.Scripts.Logic
                 
                 return true;
             }
-
+            
             return false;
         }
 
@@ -51,7 +53,16 @@ namespace Game.Scripts.Logic
                 return;
             }
         }
-        
-        public IReadOnlyList<Cannon> CannonSlots => _cannonSlots;
+
+        public bool AreAllSlotsFilled()
+        {
+            for (int i = 0; i < _cannonSlots.Length; i++)
+            {
+                if (_cannonSlots[i] == null)
+                    return false;
+            }
+
+            return true;
+        }
     }
 }
