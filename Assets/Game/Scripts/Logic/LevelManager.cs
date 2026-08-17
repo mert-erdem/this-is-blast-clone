@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Game.Scripts.Logic
 {
-    public class LevelGenerator : Singleton<LevelGenerator>
+    public class LevelManager : Singleton<LevelManager>
     {
         [Header("External Classes")]
         [SerializeField] private Board board;
@@ -17,7 +17,16 @@ namespace Game.Scripts.Logic
         {
             base.Awake();
             
-            Generate();
+            TextAsset saveJson = Resources.Load<TextAsset>($"save");
+
+            if (saveJson == null || string.IsNullOrWhiteSpace(saveJson.text))
+            {
+                Generate();
+                
+                return;
+            }
+            
+            GenerateFromSave();
         }
 
         private void Generate()
@@ -36,6 +45,10 @@ namespace Game.Scripts.Logic
             board.Initialize(levelData.targetBlocks);
             cannonManager.Initialize(levelData.queueWidth, levelData.cannons);
             cannonSlotManager.Initialize();
+        }
+
+        private void GenerateFromSave()
+        {
         }
     }
 }
