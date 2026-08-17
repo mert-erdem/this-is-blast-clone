@@ -43,6 +43,11 @@ namespace Game.Scripts.Entities
         {
             return _color;
         }
+        
+        public int GetAmmo()
+        {
+            return _ammo;
+        }
 
         public void Fire(TargetBlock targetBlock)
         {

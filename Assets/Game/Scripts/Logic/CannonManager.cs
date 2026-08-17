@@ -78,6 +78,106 @@ namespace Game.Scripts.Logic
 
             return false;
         }
+        
+        public int GetQueueWidth()
+        {
+            return _cannonQueues?.Length ?? 0;
+        }
+
+        #region Saving/Restoring
+
+        public CannonQueueSaveData[] GetSaveData()
+        {
+            List<CannonQueueSaveData> saveData = new();
+
+            for (int i = 0; i < _cannonQueues.Length; i++)
+            {
+                Cannon[] cannons = _cannonQueues[i].ToArray();
+
+                for (int j = 0; j < cannons.Length; j++)
+                {
+                    Cannon cannon = cannons[j];
+
+                    saveData.Add(new CannonQueueSaveData
+                    {
+                        queueIndex = i,
+                        queueDepth = j,
+                        color = cannon.GetColor(),
+                        ammo = cannon.GetAmmo()
+                    });
+                }
+            }
+
+            return saveData.ToArray();
+        }
+        
+        public void Restore(int queueWidth, CannonQueueSaveData[] saveData)
+        {
+            _cannonPool ??= CannonPool.Instance;
+
+            ClearActiveCannons();
+            EnsureQueues(queueWidth);
+            ClearQueues();
+
+            if (saveData == null)
+                return;
+
+            for (int i = 0; i < saveData.Length; i++)
+            {
+                CannonQueueSaveData cannonSaveData = saveData[i];
+
+                CannonData cannonData = new()
+                {
+                    color = cannonSaveData.color,
+                    ammo = cannonSaveData.ammo
+                };
+
+                Cannon cannon = _cannonPool.GetObject();
+
+                cannon.transform.position = GetCannonPosition(
+                    cannonSaveData.queueIndex,
+                    cannonSaveData.queueDepth,
+                    queueWidth);
+
+                cannon.transform.rotation = Quaternion.identity;
+                cannon.transform.SetParent(transform, true);
+
+                cannon.Initialize(cannonData);
+
+                _cannonQueues[cannonSaveData.queueIndex].Enqueue(cannon);
+                _activeCannons.Add(cannon);
+            }
+
+            // Preventing duplication
+            cannonSlotManager.OnCannonRemoved -= RemoveCannon;
+            cannonSlotManager.OnCannonRemoved += RemoveCannon;
+        }
+        
+        /// <summary>
+        /// Creates a cannon from saved slot data.
+        /// </summary>
+        /// <param name="saveData"></param>
+        /// <returns></returns>
+        public Cannon CreateSavedCannon(CannonSlotSaveData saveData)
+        {
+            CannonData cannonData = new()
+            {
+                color = saveData.color,
+                ammo = saveData.ammo
+            };
+
+            Cannon cannon = _cannonPool.GetObject();
+
+            cannon.Initialize(cannonData);
+            cannon.transform.rotation = Quaternion.identity;
+            cannon.transform.SetParent(transform, true);
+
+            _activeCannons.Add(cannon);
+
+            return cannon;
+        }
+
+        #endregion
 
         private Vector3 GetCannonPosition(int queueIndex, int queueDepth, int queueWidth)
         {

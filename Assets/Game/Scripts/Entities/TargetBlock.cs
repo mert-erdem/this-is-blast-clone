@@ -114,6 +114,11 @@ namespace Game.Scripts.Entities
             return _color;
         }
         
+        public int GetHealth()
+        {
+            return _health;
+        }
+        
         public void OnSpawn()
         {
             if (_initialScale == Vector3.zero)

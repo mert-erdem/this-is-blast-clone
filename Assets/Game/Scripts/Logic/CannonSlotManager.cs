@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Game.Scripts.Core;
+using Game.Scripts.Data;
 using Game.Scripts.Entities;
 using UnityEngine;
 
@@ -64,5 +65,40 @@ namespace Game.Scripts.Logic
 
             return true;
         }
+
+        #region Saving/Restoring
+
+        public CannonSlotSaveData[] GetSaveData()
+        {
+            List<CannonSlotSaveData> saveData = new();
+
+            for (int i = 0; i < _cannonSlots.Length; i++)
+            {
+                Cannon cannon = _cannonSlots[i];
+
+                if (cannon == null)
+                    continue;
+
+                saveData.Add(new CannonSlotSaveData
+                {
+                    slotIndex = i,
+                    color = cannon.GetColor(),
+                    ammo = cannon.GetAmmo()
+                });
+            }
+
+            return saveData.ToArray();
+        }
+        
+        public void SetSlotFromSave(int slotIndex, Cannon cannon)
+        {
+            if (slotIndex < 0 || slotIndex >= _cannonSlots.Length)
+                return;
+
+            _cannonSlots[slotIndex] = cannon;
+            cannon.MoveToSlot(slots[slotIndex].position, 0f, () => OnCannonAdded?.Invoke(cannon));
+        }
+
+        #endregion
     }
 }

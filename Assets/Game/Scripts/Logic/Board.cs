@@ -179,6 +179,84 @@ namespace Game.Scripts.Logic
             return false;
         }
 
+        #region Saving/Restoring
+
+        public TargetBlockSaveData[] GetSaveData()
+        {
+            List<TargetBlockSaveData> targetBlockSaveData = new();
+
+            for (int i = 0; i < _grid.GetLength(0); i++)
+            {
+                for (int j = 0; j < _grid.GetLength(1); j++)
+                {
+                    TargetBlock targetBlock = _grid[i, j];
+
+                    if (targetBlock == null)
+                        continue;
+
+                    targetBlockSaveData.Add(new TargetBlockSaveData
+                    {
+                        column = i,
+                        row = j,
+                        color = targetBlock.GetColor(),
+                        health = targetBlock.GetHealth()
+                    });
+                }
+            }
+
+            return targetBlockSaveData.ToArray();
+        }
+        
+        public void Restore(TargetBlockSaveData[] targetBlocks)
+        {
+            if (targetBlocks == null)
+                return;
+
+            _targetBlockPool ??= TargetBlockPool.Instance;
+
+            ClearGrid();
+
+            int boardHeight = 1;
+
+            for (int i = 0; i < targetBlocks.Length; i++)
+            {
+                if (targetBlocks[i].row + 1 > boardHeight)
+                    boardHeight = targetBlocks[i].row + 1;
+            }
+
+            EnsureGrid(boardHeight);
+
+            _bottomLeftCornerPos = boardVisualMeshRenderer.bounds.min;
+            _totalTargetBlocks = targetBlocks.Length;
+            _movingTargetBlocks = 0;
+
+            for (int i = 0; i < targetBlocks.Length; i++)
+            {
+                TargetBlockSaveData saveData = targetBlocks[i];
+
+                TargetBlockData targetBlockData = new()
+                {
+                    color = saveData.color,
+                    health = saveData.health
+                };
+
+                TargetBlock targetBlock = _targetBlockPool.GetObject(true);
+
+                targetBlock.transform.position = GetTargetBlockPosition(saveData.column, saveData.row);
+                targetBlock.transform.rotation = Quaternion.identity;
+                targetBlock.transform.SetParent(targetBlocksParent != null ? targetBlocksParent : transform, true);
+
+                targetBlock.Initialize(targetBlockData, new Vector2Int(saveData.column, saveData.row));
+                targetBlock.OnDestroyed += RemoveTargetBlock;
+
+                _grid[saveData.column, saveData.row] = targetBlock;
+            }
+
+            OnBoardStateChanged?.Invoke();
+        }
+
+        #endregion
+
         private bool CanInitialize(TargetBlockData[] targetBlocks)
         {
             if (targetBlocks != null && targetBlocks.Length != 0) return true;
