@@ -4,20 +4,23 @@ using Game.ScriptableObjects;
 using Game.Scripts.Core;
 using Game.Scripts.Data;
 using Game.Scripts.Enums;
+using TMPro;
 using UnityEngine;
 
 namespace Game.Scripts.Entities
 {
     public class TargetBlock : MonoBehaviour, IPoolObject
     {
+        [Header("Visual's Components")]
+        [SerializeField] private Transform transformVisual;
+
+        [SerializeField] private TextMeshPro textHealth; 
         [SerializeField] private MeshRenderer meshRenderer;
         [SerializeField] private BlockColorSo blockColorSo;
         
         public event Action<TargetBlock> OnDestroyed;
         
-        public bool IsMoving { get; private set; }
-
-        public bool IsFireable => IsSpawned && !IsMoving;
+        public bool IsFireable => IsSpawned && !_isMoving;
 
         public bool IsSpawned { get; set; }
         public GameObject GameObject => gameObject;
@@ -29,7 +32,10 @@ namespace Game.Scripts.Entities
         // Tween Related
         private Tween _moveTween;
         private Tween _scaleTween;
+        private Tween _visualScaleTween;
         private Vector3 _initialScale;
+        private Vector3 _initialVisualScale;
+        private bool _isMoving;
 
         // Will be used by ObjectPool
         public void Initialize(TargetBlockData data, Vector2Int gridPosition)
@@ -38,7 +44,9 @@ namespace Game.Scripts.Entities
             _moveTween = null;
             _scaleTween?.Kill();
             _scaleTween = null;
-            IsMoving = false;
+            _visualScaleTween?.Kill();
+            _visualScaleTween = null;
+            _isMoving = false;
             transform.localScale = _initialScale;
             
             _color = data.color;
@@ -46,6 +54,10 @@ namespace Game.Scripts.Entities
             _gridPosition = gridPosition;
             
             Paint(_color);
+
+            SetHealthText(_health);
+            // Tower Block
+            SetScale(_health, 0f);
         }
 
         public void TakeDamage(int amount)
@@ -55,7 +67,11 @@ namespace Game.Scripts.Entities
             if (_health <= 0)
             {
                 OnDestroyed?.Invoke(this);
+                return;
             }
+
+            SetHealthText(_health);
+            SetScale(_health, 0.15f);
         }
 
         public Vector2Int GetGridPosition()
@@ -75,18 +91,18 @@ namespace Game.Scripts.Entities
             if (duration <= 0f)
             {
                 transform.position = targetPosition;
-                IsMoving = false;
+                _isMoving = false;
                 onComplete?.Invoke();
                 return;
             }
 
-            IsMoving = true;
+            _isMoving = true;
             
             _moveTween = transform
                 .DOMove(targetPosition, duration)
                 .OnComplete(() =>
                 {
-                    IsMoving = false;
+                    _isMoving = false;
                     _moveTween = null;
                     onComplete?.Invoke();
                 });
@@ -96,14 +112,14 @@ namespace Game.Scripts.Entities
         {
             _scaleTween?.Kill();
 
-            IsMoving = true;
+            _isMoving = true;
             
             _scaleTween = transform
                 .DOScale(Vector3.zero, duration)
                 .SetEase(Ease.InBack)
                 .OnComplete(() =>
                 {
-                    IsMoving = false;
+                    _isMoving = false;
                     _scaleTween = null;
                     onComplete?.Invoke();
                 });
@@ -124,7 +140,11 @@ namespace Game.Scripts.Entities
             if (_initialScale == Vector3.zero)
                 _initialScale = transform.localScale;
 
+            if (_initialVisualScale == Vector3.zero)
+                _initialVisualScale = transformVisual.localScale;
+
             transform.localScale = _initialScale;
+            transformVisual.localScale = _initialVisualScale;
         }
 
         public void OnDespawn()
@@ -133,13 +153,39 @@ namespace Game.Scripts.Entities
             _moveTween = null;
             _scaleTween?.Kill();
             _scaleTween = null;
-            IsMoving = false;
+            _visualScaleTween?.Kill();
+            _visualScaleTween = null;
+            _isMoving = false;
             transform.localScale = _initialScale;
+            transformVisual.localScale = _initialVisualScale;
         }
         
         private void Paint(BlockColor blockColor)
         {
             meshRenderer.sharedMaterial = blockColorSo.GetMaterial(blockColor);
+        }
+
+        /// <summary>
+        /// Health based scaling tween for Tower Block.
+        /// </summary>
+        private void SetScale(int health, float duration)
+        {
+            float scale = _initialVisualScale.y + (health - 1) * 0.75f;
+            
+            _visualScaleTween?.Kill();
+            _visualScaleTween = transformVisual.DOScaleY(scale, duration);
+        }
+        
+        private void SetHealthText(int health)
+        {
+            bool shouldShowHealth = health > 1;
+            
+            textHealth.gameObject.SetActive(shouldShowHealth);
+
+            if (!shouldShowHealth)
+                return;
+
+            textHealth.text = health.ToString();
         }
     }
 }

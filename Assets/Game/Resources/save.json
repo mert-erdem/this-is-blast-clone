@@ -9,34 +9,64 @@
             "health": 1
         },
         {
-            "column": 0,
-            "row": 1,
-            "color": 3,
+            "column": 1,
+            "row": 0,
+            "color": 1,
             "health": 1
         },
         {
-            "column": 0,
+            "column": 1,
+            "row": 1,
+            "color": 1,
+            "health": 1
+        },
+        {
+            "column": 1,
             "row": 2,
-            "color": 0,
+            "color": 2,
             "health": 1
         },
         {
             "column": 2,
             "row": 0,
-            "color": 0,
+            "color": 2,
             "health": 1
         },
         {
             "column": 2,
             "row": 1,
+            "color": 0,
+            "health": 1
+        },
+        {
+            "column": 2,
+            "row": 2,
             "color": 1,
+            "health": 1
+        },
+        {
+            "column": 3,
+            "row": 0,
+            "color": 1,
+            "health": 1
+        },
+        {
+            "column": 3,
+            "row": 1,
+            "color": 3,
+            "health": 1
+        },
+        {
+            "column": 3,
+            "row": 2,
+            "color": 2,
             "health": 1
         },
         {
             "column": 4,
             "row": 0,
             "color": 0,
-            "health": 1
+            "health": 2
         },
         {
             "column": 4,
@@ -95,12 +125,18 @@
         {
             "column": 8,
             "row": 0,
-            "color": 0,
+            "color": 1,
             "health": 1
         },
         {
             "column": 8,
             "row": 1,
+            "color": 0,
+            "health": 1
+        },
+        {
+            "column": 8,
+            "row": 2,
             "color": 0,
             "health": 1
         },
@@ -139,6 +175,12 @@
         {
             "queueIndex": 1,
             "queueDepth": 0,
+            "color": 2,
+            "ammo": 3
+        },
+        {
+            "queueIndex": 1,
+            "queueDepth": 1,
             "color": 3,
             "ammo": 3
         },
@@ -149,15 +191,15 @@
             "ammo": 4
         },
         {
-            "queueIndex": 4,
-            "queueDepth": 0,
-            "color": 0,
+            "queueIndex": 2,
+            "queueDepth": 1,
+            "color": 1,
             "ammo": 4
         }
     ],
     "cannonSlots": [
         {
-            "slotIndex": 1,
+            "slotIndex": 0,
             "color": 3,
             "ammo": 1
         }
