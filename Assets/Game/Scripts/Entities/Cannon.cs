@@ -22,6 +22,7 @@ namespace Game.Scripts.Entities
         public bool IsReadyToFire { get; private set; }
 
         private const int DAMAGE = 1;
+        private const float REMOVE_TWEEN_OVERSHOOT = 2.5f;
         
         private BlockColor _color;
         private int _ammo;
@@ -92,6 +93,30 @@ namespace Game.Scripts.Entities
                 {
                     _slotTween = null;
                     IsReadyToFire = true;
+                    onComplete?.Invoke();
+                });
+        }
+
+        public void PlayRemoveFromSlotTween(float duration, Action onComplete = null)
+        {
+            _slotTween?.Kill();
+            _slotTween = null;
+            IsReadyToFire = false;
+
+            if (duration <= 0f)
+            {
+                transform.localScale = Vector3.zero;
+                onComplete?.Invoke();
+
+                return;
+            }
+
+            _slotTween = transform
+                .DOScale(Vector3.zero, duration)
+                .SetEase(Ease.InBack, REMOVE_TWEEN_OVERSHOOT)
+                .OnComplete(() =>
+                {
+                    _slotTween = null;
                     onComplete?.Invoke();
                 });
         }

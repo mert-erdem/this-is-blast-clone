@@ -20,6 +20,8 @@ namespace Game.Scripts.Logic
         private readonly List<Cannon> _activeCannons = new();
         
         private ObjectPool<Cannon, CannonPool> _cannonPool;
+        
+        private const float TWEEN_REMOVE_DURATION = 0.2f;
 
         public void Initialize(int queueWidth, CannonData[] cannons)
         {
@@ -230,7 +232,9 @@ namespace Game.Scripts.Logic
             if (cannon == null) return;
             
             _activeCannons.Remove(cannon);
-            _cannonPool.PullObjectBackImmediate(cannon);
+            cannon.PlayRemoveFromSlotTween(
+                TWEEN_REMOVE_DURATION, 
+                () => _cannonPool.PullObjectBackImmediate(cannon));
         }
 
         private void OnDestroy()
