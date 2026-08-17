@@ -4,12 +4,14 @@ using Game.ScriptableObjects;
 using Game.Scripts.Core;
 using Game.Scripts.Data;
 using Game.Scripts.Enums;
+using TMPro;
 using UnityEngine;
 
 namespace Game.Scripts.Entities
 {
     public class Cannon : MonoBehaviour, IPoolObject
     {
+        [SerializeField] private TextMeshPro textAmmo;
         [SerializeField] private MeshRenderer meshRenderer;
         [SerializeField] private BlockColorSo blockColorSo;
         
@@ -37,6 +39,7 @@ namespace Game.Scripts.Entities
             _ammo = data.ammo;
             
             Paint(_color);
+            SetAmmoText(_ammo);
         }
 
         public BlockColor GetColor()
@@ -55,8 +58,10 @@ namespace Game.Scripts.Entities
                 return;
 
             _ammo--;
-
+            
             targetBlock.TakeDamage(DAMAGE);
+            
+            SetAmmoText(_ammo);
         }
 
         public void MoveToSlot(Vector3 slotPosition, float duration, Action onComplete = null)
@@ -94,6 +99,11 @@ namespace Game.Scripts.Entities
         private void Paint(BlockColor blockColor)
         {
             meshRenderer.sharedMaterial = blockColorSo.GetMaterial(blockColor);
+        }
+
+        private void SetAmmoText(int ammo)
+        {
+            textAmmo.text = ammo.ToString();
         }
         
         public void OnSpawn()
