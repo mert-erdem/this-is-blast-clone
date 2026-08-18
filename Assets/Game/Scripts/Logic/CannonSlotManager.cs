@@ -56,6 +56,14 @@ namespace Game.Scripts.Logic
             }
         }
 
+        public void ClearSlots()
+        {
+            if (_cannonSlots == null)
+                return;
+
+            Array.Clear(_cannonSlots, 0, _cannonSlots.Length);
+        }
+
         public bool AreAllSlotsFilled()
         {
             for (int i = 0; i < _cannonSlots.Length; i++)

@@ -58,7 +58,10 @@ namespace Game.Scripts.Logic
                 _activeCannons.Add(cannon);
             }
 
+            cannonSlotManager.OnCannonRemoved -= RemoveCannon;
             cannonSlotManager.OnCannonRemoved += RemoveCannon;
+            GameManager.ActionGameOver -= ClearAllCannons;
+            GameManager.ActionGameOver += ClearAllCannons;
         }
 
         public bool TrySelect(Cannon cannon)
@@ -126,6 +129,12 @@ namespace Game.Scripts.Logic
             EnsureQueues(queueWidth);
             ClearQueues();
 
+            // Preventing duplication
+            cannonSlotManager.OnCannonRemoved -= RemoveCannon;
+            cannonSlotManager.OnCannonRemoved += RemoveCannon;
+            GameManager.ActionGameOver -= ClearAllCannons;
+            GameManager.ActionGameOver += ClearAllCannons;
+
             if (saveData == null)
                 return;
 
@@ -154,10 +163,6 @@ namespace Game.Scripts.Logic
                 _cannonQueues[cannonSaveData.queueIndex].Enqueue(cannon);
                 _activeCannons.Add(cannon);
             }
-
-            // Preventing duplication
-            cannonSlotManager.OnCannonRemoved -= RemoveCannon;
-            cannonSlotManager.OnCannonRemoved += RemoveCannon;
         }
         
         /// <summary>
@@ -236,10 +241,13 @@ namespace Game.Scripts.Logic
         {
             if (cannon == null) return;
             
-            _activeCannons.Remove(cannon);
             cannon.PlayRemoveFromSlotTween(
                 TWEEN_REMOVE_DURATION, 
-                () => _cannonPool.PullObjectBackImmediate(cannon));
+                () =>
+                {
+                    _activeCannons.Remove(cannon);
+                    _cannonPool.PullObjectBackImmediate(cannon);
+                });
         }
 
         private void PlayQueueShiftTween(Queue<Cannon> queue)
@@ -267,9 +275,21 @@ namespace Game.Scripts.Logic
             }
         }
 
+        private void ClearAllCannons()
+        {
+            _cannonPool ??= CannonPool.Instance;
+
+            if (cannonSlotManager != null)
+                cannonSlotManager.ClearSlots();
+
+            ClearQueues();
+            ClearActiveCannons();
+        }
+
         private void OnDestroy()
         {
             cannonSlotManager.OnCannonRemoved -= RemoveCannon;
+            GameManager.ActionGameOver -= ClearAllCannons;
         }
     }
 }

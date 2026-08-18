@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Game.Scripts.Core;
 using Game.Scripts.Entities;
 using Game.Scripts.Enums;
+using Game.Scripts.ObjectPools;
 using UnityEngine;
 
 namespace Game.Scripts.Logic
@@ -22,6 +23,7 @@ namespace Game.Scripts.Logic
         {
             cannonSlotManager.OnCannonAdded += TryFire;
             board.OnBoardStateChanged += ReevaluateCannons;
+            GameManager.ActionGameOver += OnActionGameOver;
         }
 
         private void TryFire(Cannon cannon)
@@ -129,10 +131,19 @@ namespace Game.Scripts.Logic
             GameManager.ActionGameOver?.Invoke();
         }
 
+        private void OnActionGameOver()
+        {
+            StopAllCoroutines();
+            _firingCannons.Clear();
+
+            ProjectilePool.Instance.PullAllObjectsBack();
+        }
+
         private void OnDestroy()
         {
             cannonSlotManager.OnCannonAdded -= TryFire;
             board.OnBoardStateChanged -= ReevaluateCannons;
+            GameManager.ActionGameOver -= OnActionGameOver;
         }
     }
 }

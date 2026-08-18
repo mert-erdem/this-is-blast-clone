@@ -48,6 +48,9 @@ namespace Game.Scripts.Logic
             
             _totalTargetBlocks = targetBlocks.Length;
             _movingTargetBlocks = 0;
+            
+            GameManager.ActionGameOver -= OnActionGameOver;
+            GameManager.ActionGameOver += OnActionGameOver;
         }
 
         public bool TryGetTarget(BlockColor color, out TargetBlock target)
@@ -209,12 +212,15 @@ namespace Game.Scripts.Logic
         
         public void Restore(TargetBlockSaveData[] targetBlocks)
         {
-            if (targetBlocks == null)
-                return;
-
             _targetBlockPool ??= TargetBlockPool.Instance;
 
             ClearGrid();
+
+            GameManager.ActionGameOver -= OnActionGameOver;
+            GameManager.ActionGameOver += OnActionGameOver;
+
+            if (targetBlocks == null)
+                return;
 
             int boardHeight = 1;
 
@@ -402,6 +408,19 @@ namespace Game.Scripts.Logic
                     _grid[i, j] = null;
                 }
             }
+
+            _totalTargetBlocks = 0;
+            _movingTargetBlocks = 0;
+        }
+
+        private void OnActionGameOver()
+        {
+            ClearGrid();
+        }
+
+        private void OnDestroy()
+        {
+            GameManager.ActionGameOver -= OnActionGameOver;
         }
     }
 }

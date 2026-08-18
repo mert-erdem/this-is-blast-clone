@@ -14,12 +14,17 @@ namespace Game.Scripts.Logic
 
         private int _currentLevel = 1;
         private bool _levelLoaded;
+        private bool _canSave;
         
         protected override void Awake()
         {
             base.Awake();
+
+            GameManager.ActionGameOver -= OnActionGameOver;
+            GameManager.ActionGameOver += OnActionGameOver;
             
             _levelLoaded = GenerateLevel();
+            _canSave = _levelLoaded;
         }
 
         private void Start()
@@ -86,6 +91,9 @@ namespace Game.Scripts.Logic
         
         private void Save()
         {
+            if (!_levelLoaded || !_canSave)
+                return;
+
             LevelSaveData saveData = new()
             {
                 currentLevel = _currentLevel,
@@ -107,6 +115,17 @@ namespace Game.Scripts.Logic
         private void OnApplicationQuit()
         {
             Save();
+        }
+
+        private void OnActionGameOver()
+        {
+            _canSave = false;
+            SaveManager.Clear();
+        }
+
+        private void OnDestroy()
+        {
+            GameManager.ActionGameOver -= OnActionGameOver;
         }
     }
 }

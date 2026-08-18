@@ -33,5 +33,11 @@ namespace Game.Scripts.UI.Game
             panelInGame.Pop();
             panelGameOver.Push();
         }
+
+        private void OnDestroy()
+        {
+            GameManager.ActionLevelPassed -= OnActionLevelPassed;
+            GameManager.ActionGameOver -= OnActionGameOver;
+        }
     }
 }
