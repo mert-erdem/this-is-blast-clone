@@ -115,3 +115,7 @@ InitTestScene*.unity*
 # VS Code local settings and workspace configurations
 .vscode/
 !.vscode/extensions.json
+
+# Generated game save data
+/Assets/Game/Resources/save.json
+/Assets/Game/Resources/save.json.meta
