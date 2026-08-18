@@ -71,6 +71,9 @@ namespace Game.Scripts.Logic
                 if (queue.Count == 0 || queue.Peek() != cannon)
                     continue;
 
+                if (cannon.IsQueueTweening)
+                    return false;
+
                 if (!cannonSlotManager.TryAddCannon(cannon))
                     return false;
 

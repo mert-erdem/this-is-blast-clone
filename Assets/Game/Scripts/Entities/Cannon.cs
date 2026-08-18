@@ -23,6 +23,7 @@ namespace Game.Scripts.Entities
         
         public bool HasAmmo => _ammo > 0;
         public bool IsReadyToFire { get; private set; }
+        public bool IsQueueTweening => _queueTween != null;
 
         private const int DAMAGE = 1;
         
