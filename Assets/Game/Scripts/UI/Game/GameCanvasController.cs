@@ -13,12 +13,20 @@ namespace Game.Scripts.UI.Game
 
         private void Awake()
         {
+            GameManager.ActionGameStart += OnActionGameStart;
             GameManager.ActionLevelPassed += OnActionLevelPassed;
             GameManager.ActionGameOver += OnActionGameOver;
         }
 
         private void Start()
         {
+            panelInGame.Push();
+        }
+
+        private void OnActionGameStart()
+        {
+            panelGameOver.Pop();
+            panelNextLevel.Pop();
             panelInGame.Push();
         }
 
@@ -36,6 +44,7 @@ namespace Game.Scripts.UI.Game
 
         private void OnDestroy()
         {
+            GameManager.ActionGameStart -= OnActionGameStart;
             GameManager.ActionLevelPassed -= OnActionLevelPassed;
             GameManager.ActionGameOver -= OnActionGameOver;
         }

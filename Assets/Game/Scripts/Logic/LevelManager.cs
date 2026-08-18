@@ -19,16 +19,17 @@ namespace Game.Scripts.Logic
         protected override void Awake()
         {
             base.Awake();
-
-            GameManager.ActionGameOver -= OnActionGameOver;
-            GameManager.ActionGameOver += OnActionGameOver;
             
             _levelLoaded = GenerateLevel();
             _canSave = _levelLoaded;
+
+            GameManager.ActionGameOver += OnActionGameOver;
+            GameManager.ActionRestartLevel += OnActionRestartLevel;
         }
 
         private void Start()
         {
+            // Due to script order can be problem (DI Container can be implemented later)
             if (_levelLoaded)
                 GameManager.ActionGameStart?.Invoke();
         }
@@ -106,6 +107,21 @@ namespace Game.Scripts.Logic
             SaveManager.Save(saveData);
         }
         
+        private void OnActionGameOver()
+        {
+            _canSave = false;
+            SaveManager.Clear();
+        }
+
+        private void OnActionRestartLevel()
+        {
+            _levelLoaded = GenerateLevel();
+            _canSave = _levelLoaded;
+
+            if (_levelLoaded)
+                GameManager.ActionGameStart?.Invoke();
+        }
+
         private void OnApplicationPause(bool pauseStatus)
         {
             if (pauseStatus)
@@ -117,15 +133,10 @@ namespace Game.Scripts.Logic
             Save();
         }
 
-        private void OnActionGameOver()
-        {
-            _canSave = false;
-            SaveManager.Clear();
-        }
-
         private void OnDestroy()
         {
             GameManager.ActionGameOver -= OnActionGameOver;
+            GameManager.ActionRestartLevel -= OnActionRestartLevel;
         }
     }
 }
