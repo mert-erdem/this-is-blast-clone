@@ -16,19 +16,25 @@ namespace Game.Scripts.Effects
         public GameObject GameObject => gameObject;
         
         // Tween Related
-        private const float MOVE_TWEEN_DURATION = 0.5f;
+        private const float MOVE_TWEEN_DURATION = 0.2f;
         private Tween _moveTween;
 
-        public void Initialize(Vector3 targetPosition, BlockColor color)
+        public void Initialize(
+            Vector3 startPosition,
+            Vector3 targetPosition,
+            BlockColor color,
+            Action onTweenComplete = null)
         {
             Paint(color);
-            PlayMoveTween(targetPosition, MOVE_TWEEN_DURATION);
+            PlayMoveTween(startPosition, targetPosition, MOVE_TWEEN_DURATION, onTweenComplete);
         }
 
-        private void PlayMoveTween(Vector3 targetPosition, float duration, Action onComplete = null)
+        private void PlayMoveTween(Vector3 startPosition, Vector3 targetPosition, float duration, Action onComplete = null)
         {
             _moveTween?.Kill();
             _moveTween = null;
+            
+            transform.position = startPosition;
             
             _moveTween = transform
                 .DOMove(targetPosition, duration)
@@ -51,6 +57,8 @@ namespace Game.Scripts.Effects
 
         public void OnDespawn()
         {
+            _moveTween?.Kill();
+            _moveTween = null;
         }
     }
 }

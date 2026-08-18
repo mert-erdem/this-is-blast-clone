@@ -3,7 +3,9 @@ using DG.Tweening;
 using Game.ScriptableObjects;
 using Game.Scripts.Core;
 using Game.Scripts.Data;
+using Game.Scripts.Effects;
 using Game.Scripts.Enums;
+using Game.Scripts.ObjectPools;
 using TMPro;
 using UnityEngine;
 
@@ -78,9 +80,36 @@ namespace Game.Scripts.Entities
             {
                 if (targetBlock != null && targetBlock.IsFireable && HasAmmo)
                 {
+                    Projectile projectile = ProjectilePool.Instance.GetObject();
+
+                    if (projectile == null)
+                    {
+                        IsReadyToFire = HasAmmo;
+                        onComplete?.Invoke();
+
+                        return;
+                    }
+
                     _ammo--;
-                    targetBlock.TakeDamage(DAMAGE);
                     SetAmmoText(_ammo);
+
+                    Vector3 targetPosition = targetBlock.GetPosition();
+
+                    projectile.Initialize(
+                        transformVisual.position,
+                        targetPosition,
+                        _color,
+                        () =>
+                        {
+                            if (targetBlock != null && targetBlock.IsSpawned && targetBlock.GetHealth() > 0)
+                                targetBlock.TakeDamage(DAMAGE);
+
+                            ProjectilePool.Instance.PullObjectBackImmediate(projectile);
+                            IsReadyToFire = HasAmmo;
+                            onComplete?.Invoke();
+                        });
+
+                    return;
                 }
 
                 IsReadyToFire = HasAmmo;
