@@ -23,15 +23,16 @@ namespace Game.Scripts.Entities
         public bool IsReadyToFire { get; private set; }
 
         private const int DAMAGE = 1;
-        private const float REMOVE_TWEEN_OVERSHOOT = 2.5f;
-        private const float QUEUE_SHIFT_TWEEN_OVERSHOOT = 2f;
-        private const float LOOK_TWEEN_DURATION = 0.5f;
-        private const float RETURN_LOOK_TWEEN_DURATION = 0.25f;
         
         private BlockColor _color;
         private int _ammo;
 
         // Tween Related
+        private const float REMOVE_TWEEN_OVERSHOOT = 2.5f;
+        private const float QUEUE_SHIFT_TWEEN_OVERSHOOT = 2f;
+        private const float LOOK_TWEEN_DURATION = 0.5f;
+        private const float RETURN_LOOK_TWEEN_DURATION = 0.25f;
+        
         private Tween _slotTween, _queueTween, _lookTween;
         private Vector3 _initialScale;
         private Quaternion _initialVisualRotation;

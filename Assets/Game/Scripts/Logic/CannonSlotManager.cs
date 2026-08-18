@@ -16,10 +16,11 @@ namespace Game.Scripts.Logic
         public event Action<Cannon> OnCannonAdded;
         public event Action<Cannon> OnCannonRemoved;
         
+        private Cannon[] _cannonSlots;
+        
+        // Tween Related
         private const float TWEEN_SLOT_DURATION = 0.5f;
         
-        private Cannon[] _cannonSlots;
-
         public void Initialize()
         {
             _cannonSlots = new Cannon[slots.Length];
