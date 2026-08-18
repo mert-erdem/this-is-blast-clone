@@ -233,7 +233,7 @@ namespace Game.Scripts.Entities
             _lookTween = null;
 
             _lookTween = transformVisual
-                .DOLookAt(targetPosition, LOOK_TWEEN_DURATION)
+                .DOLookAt(targetPosition, LOOK_TWEEN_DURATION, AxisConstraint.Y)
                 .SetEase(Ease.OutBack)
                 .OnComplete(() =>
                 {
