@@ -11,9 +11,9 @@ namespace Game.Scripts.Logic
         [SerializeField] private Board board;
         [SerializeField] private CannonManager cannonManager;
         [SerializeField] private CannonSlotManager cannonSlotManager;
-        
-        [SerializeField] private int currentLevel = 1; // PlayerPrefs later
 
+        private int _currentLevel = 1;
+        
         protected override void Awake()
         {
             base.Awake();
@@ -29,16 +29,17 @@ namespace Game.Scripts.Logic
                 return;
             }
 
+            _currentLevel = PlayerPrefs.GetInt("CurrentLevel", 1);
             LoadLevel();
         }
         
         private void LoadLevel()
         {
-            TextAsset levelJson = Resources.Load<TextAsset>($"level{currentLevel}");
+            TextAsset levelJson = Resources.Load<TextAsset>($"level{_currentLevel}");
 
             if (levelJson == null)
             {
-                Debug.LogError($"Level json not found in Resources: level{currentLevel}");
+                Debug.LogError($"Level json not found in Resources: level{_currentLevel}");
                 return;
             }
 
@@ -59,7 +60,7 @@ namespace Game.Scripts.Logic
                 return;
             }
 
-            currentLevel = saveData.currentLevel;
+            _currentLevel = saveData.currentLevel;
 
             cannonSlotManager.Initialize();
 
@@ -78,7 +79,7 @@ namespace Game.Scripts.Logic
         {
             LevelSaveData saveData = new()
             {
-                currentLevel = currentLevel,
+                currentLevel = _currentLevel,
                 queueWidth = cannonManager.GetQueueWidth(),
                 targetBlocks = board.GetSaveData(),
                 cannonQueues = cannonManager.GetSaveData(),
