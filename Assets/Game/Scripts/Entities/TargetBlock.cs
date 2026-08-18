@@ -20,7 +20,8 @@ namespace Game.Scripts.Entities
         
         public event Action<TargetBlock> OnDestroyed;
         
-        public bool IsFireable => IsSpawned && !_isMoving;
+        public bool IsFireable => IsSpawned && !_isMoving && !IsReserved;
+        public bool IsReserved { get; set; }
 
         public bool IsSpawned { get; set; }
         public GameObject GameObject => gameObject;
@@ -47,6 +48,7 @@ namespace Game.Scripts.Entities
             _visualScaleTween?.Kill();
             _visualScaleTween = null;
             _isMoving = false;
+            IsReserved = false;
             transform.localScale = _initialScale;
             
             _color = data.color;
@@ -161,6 +163,7 @@ namespace Game.Scripts.Entities
             _visualScaleTween?.Kill();
             _visualScaleTween = null;
             _isMoving = false;
+            IsReserved = false;
             transform.localScale = _initialScale;
             transformVisual.localScale = _initialVisualScale;
         }

@@ -69,21 +69,23 @@ namespace Game.Scripts.Entities
 
         public void Fire(TargetBlock targetBlock, Action onComplete = null)
         {
-            if (targetBlock == null || !HasAmmo || !IsReadyToFire)
+            if (targetBlock == null || !targetBlock.IsFireable || !HasAmmo || !IsReadyToFire)
             {
                 onComplete?.Invoke();
                 return;
             }
 
+            targetBlock.IsReserved = true;
             IsReadyToFire = false;
             LookTargetTween(targetBlock.GetPosition(), () =>
             {
-                if (targetBlock != null && targetBlock.IsFireable && HasAmmo)
+                if (targetBlock != null && targetBlock.IsSpawned && targetBlock.GetHealth() > 0 && HasAmmo)
                 {
                     Projectile projectile = ProjectilePool.Instance.GetObject();
 
                     if (projectile == null)
                     {
+                        targetBlock.IsReserved = false;
                         IsReadyToFire = HasAmmo;
                         onComplete?.Invoke();
 
@@ -104,6 +106,9 @@ namespace Game.Scripts.Entities
                             if (targetBlock != null && targetBlock.IsSpawned && targetBlock.GetHealth() > 0)
                                 targetBlock.TakeDamage(DAMAGE);
 
+                            if (targetBlock != null)
+                                targetBlock.IsReserved = false;
+
                             ProjectilePool.Instance.PullObjectBackImmediate(projectile);
                             IsReadyToFire = HasAmmo;
                             onComplete?.Invoke();
@@ -111,6 +116,9 @@ namespace Game.Scripts.Entities
 
                     return;
                 }
+
+                if (targetBlock != null)
+                    targetBlock.IsReserved = false;
 
                 IsReadyToFire = HasAmmo;
                 onComplete?.Invoke();
