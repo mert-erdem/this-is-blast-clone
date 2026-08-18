@@ -1,4 +1,5 @@
 using System.Collections;
+using Game.Scripts.Enums;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -17,7 +18,7 @@ namespace Game.Scripts.Common
         {
             yield return new WaitForSeconds(1f);
 
-            SceneManager.LoadScene("Game");
+            SceneManager.LoadScene(nameof(GameScenes.Menu));
         }
     }
 }
