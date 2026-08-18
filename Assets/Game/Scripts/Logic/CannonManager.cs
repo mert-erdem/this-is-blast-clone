@@ -62,6 +62,8 @@ namespace Game.Scripts.Logic
             cannonSlotManager.OnCannonRemoved += RemoveCannon;
             GameManager.ActionGameOver -= ClearAllCannons;
             GameManager.ActionGameOver += ClearAllCannons;
+            GameManager.ActionLevelPassed -= ClearAllCannons;
+            GameManager.ActionLevelPassed += ClearAllCannons;
         }
 
         public bool TrySelect(Cannon cannon)
@@ -134,6 +136,8 @@ namespace Game.Scripts.Logic
             cannonSlotManager.OnCannonRemoved += RemoveCannon;
             GameManager.ActionGameOver -= ClearAllCannons;
             GameManager.ActionGameOver += ClearAllCannons;
+            GameManager.ActionLevelPassed -= ClearAllCannons;
+            GameManager.ActionLevelPassed += ClearAllCannons;
 
             if (saveData == null)
                 return;
@@ -290,6 +294,7 @@ namespace Game.Scripts.Logic
         {
             cannonSlotManager.OnCannonRemoved -= RemoveCannon;
             GameManager.ActionGameOver -= ClearAllCannons;
+            GameManager.ActionLevelPassed -= ClearAllCannons;
         }
     }
 }

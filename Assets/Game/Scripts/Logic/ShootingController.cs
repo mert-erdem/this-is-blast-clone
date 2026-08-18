@@ -24,6 +24,7 @@ namespace Game.Scripts.Logic
             cannonSlotManager.OnCannonAdded += TryFire;
             board.OnBoardStateChanged += ReevaluateCannons;
             GameManager.ActionGameOver += OnActionGameOver;
+            GameManager.ActionLevelPassed += OnActionLevelPassed;
         }
 
         private void TryFire(Cannon cannon)
@@ -139,11 +140,20 @@ namespace Game.Scripts.Logic
             ProjectilePool.Instance.PullAllObjectsBack();
         }
 
+        private void OnActionLevelPassed()
+        {
+            StopAllCoroutines();
+            _firingCannons.Clear();
+
+            ProjectilePool.Instance.PullAllObjectsBack();
+        }
+
         private void OnDestroy()
         {
             cannonSlotManager.OnCannonAdded -= TryFire;
             board.OnBoardStateChanged -= ReevaluateCannons;
             GameManager.ActionGameOver -= OnActionGameOver;
+            GameManager.ActionLevelPassed -= OnActionLevelPassed;
         }
     }
 }

@@ -51,6 +51,8 @@ namespace Game.Scripts.Logic
             
             GameManager.ActionGameOver -= OnActionGameOver;
             GameManager.ActionGameOver += OnActionGameOver;
+            GameManager.ActionLevelPassed -= OnActionLevelPassed;
+            GameManager.ActionLevelPassed += OnActionLevelPassed;
         }
 
         public bool TryGetTarget(BlockColor color, out TargetBlock target)
@@ -418,9 +420,16 @@ namespace Game.Scripts.Logic
             ClearGrid();
         }
 
+        private void OnActionLevelPassed()
+        {
+            _totalTargetBlocks = 0;
+            _movingTargetBlocks = 0;
+        }
+
         private void OnDestroy()
         {
             GameManager.ActionGameOver -= OnActionGameOver;
+            GameManager.ActionLevelPassed -= OnActionLevelPassed;
         }
     }
 }

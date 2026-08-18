@@ -25,6 +25,7 @@ namespace Game.Scripts.Logic
 
             GameManager.ActionGameOver += OnActionGameOver;
             GameManager.ActionRestartLevel += OnActionRestartLevel;
+            GameManager.ActionLevelPassed += OnActionLevelPassed;
         }
 
         private void Start()
@@ -122,6 +123,12 @@ namespace Game.Scripts.Logic
                 GameManager.ActionGameStart?.Invoke();
         }
 
+        private void OnActionLevelPassed()
+        {
+            _canSave = false;
+            SaveManager.Clear();
+        }
+
         private void OnApplicationPause(bool pauseStatus)
         {
             if (pauseStatus)
@@ -137,6 +144,7 @@ namespace Game.Scripts.Logic
         {
             GameManager.ActionGameOver -= OnActionGameOver;
             GameManager.ActionRestartLevel -= OnActionRestartLevel;
+            GameManager.ActionLevelPassed -= OnActionLevelPassed;
         }
     }
 }
