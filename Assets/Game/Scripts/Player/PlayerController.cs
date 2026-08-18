@@ -1,3 +1,4 @@
+using Game.Scripts.Core;
 using Game.Scripts.Entities;
 using Game.Scripts.Logic;
 using UnityEngine;
@@ -8,11 +9,20 @@ namespace Game.Scripts.Player
     {
         [SerializeField] private Camera mainCamera;
         [SerializeField] private LayerMask cannonLayer;
+        
+        private bool _inputEnabled;
+
+        private void Awake()
+        {
+            GameManager.ActionGameStart += OnActionGameStart;
+            GameManager.ActionLevelPassed += OnActionLevelPassed;
+            GameManager.ActionGameOver += OnActionGameOver;
+        }
 
         private void Update()
         {
 #if UNITY_EDITOR
-            if (Input.GetMouseButtonDown(0))
+            if (Input.GetMouseButtonDown(0) && _inputEnabled)
             {
                 TrySelectCannon(Input.mousePosition);
             }
@@ -43,6 +53,28 @@ namespace Game.Scripts.Player
             {
                 CannonManager.Instance.TrySelect(cannon);
             }
+        }
+
+        private void OnActionGameStart()
+        {
+            _inputEnabled = true;
+        }
+        
+        private void OnActionLevelPassed()
+        {
+            _inputEnabled = false;
+        }
+        
+        private void OnActionGameOver()
+        {
+            _inputEnabled = false;
+        }
+
+        private void OnDestroy()
+        {
+            GameManager.ActionGameStart -= OnActionGameStart;
+            GameManager.ActionLevelPassed -= OnActionLevelPassed;
+            GameManager.ActionGameOver -= OnActionGameOver;
         }
     }
 }

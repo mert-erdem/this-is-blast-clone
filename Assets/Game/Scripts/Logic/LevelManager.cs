@@ -13,34 +13,40 @@ namespace Game.Scripts.Logic
         [SerializeField] private CannonSlotManager cannonSlotManager;
 
         private int _currentLevel = 1;
+        private bool _levelLoaded;
         
         protected override void Awake()
         {
             base.Awake();
             
-            GenerateLevel();
+            _levelLoaded = GenerateLevel();
         }
 
-        private void GenerateLevel()
+        private void Start()
+        {
+            if (_levelLoaded)
+                GameManager.ActionGameStart?.Invoke();
+        }
+
+        private bool GenerateLevel()
         {
             if (SaveManager.HasSave())
             {
-                LoadSavedLevel();
-                return;
+                return LoadSavedLevel();
             }
 
             _currentLevel = PlayerPrefs.GetInt("CurrentLevel", 1);
-            LoadLevel();
+            return LoadLevel();
         }
         
-        private void LoadLevel()
+        private bool LoadLevel()
         {
             TextAsset levelJson = Resources.Load<TextAsset>($"level{_currentLevel}");
 
             if (levelJson == null)
             {
                 Debug.LogError($"Level json not found in Resources: level{_currentLevel}");
-                return;
+                return false;
             }
 
             LevelData levelData = JsonUtility.FromJson<LevelData>(levelJson.text);
@@ -48,16 +54,17 @@ namespace Game.Scripts.Logic
             board.Initialize(levelData.targetBlocks);
             cannonManager.Initialize(levelData.queueWidth, levelData.cannons);
             cannonSlotManager.Initialize();
+
+            return true;
         }
         
-        private void LoadSavedLevel()
+        private bool LoadSavedLevel()
         {
             LevelSaveData saveData = SaveManager.Load();
 
             if (saveData == null)
             {
-                LoadLevel();
-                return;
+                return LoadLevel();
             }
 
             _currentLevel = saveData.currentLevel;
@@ -73,6 +80,8 @@ namespace Game.Scripts.Logic
                 Cannon cannon = cannonManager.CreateSavedCannon(saveData.cannonSlots[i]);
                 cannonSlotManager.SetSlotFromSave(saveData.cannonSlots[i].slotIndex, cannon);
             }
+
+            return true;
         }
         
         private void Save()
