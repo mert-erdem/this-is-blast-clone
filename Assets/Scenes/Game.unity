@@ -1922,33 +1922,9 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 244669707127179682, guid: 11d306dc180a745f7bd3bfc6723da8ad, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 2085678829852185598, guid: 11d306dc180a745f7bd3bfc6723da8ad, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 6821703329286717354, guid: 11d306dc180a745f7bd3bfc6723da8ad, type: 3}
-      propertyPath: m_Color.a
-      value: 0.9019608
-      objectReference: {fileID: 0}
-    - target: {fileID: 6821703329286717354, guid: 11d306dc180a745f7bd3bfc6723da8ad, type: 3}
-      propertyPath: m_Color.b
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6821703329286717354, guid: 11d306dc180a745f7bd3bfc6723da8ad, type: 3}
-      propertyPath: m_Color.g
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6821703329286717354, guid: 11d306dc180a745f7bd3bfc6723da8ad, type: 3}
-      propertyPath: m_Color.r
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6821703329286717354, guid: 11d306dc180a745f7bd3bfc6723da8ad, type: 3}
-      propertyPath: m_PixelsPerUnitMultiplier
-      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 8033910317330486954, guid: 11d306dc180a745f7bd3bfc6723da8ad, type: 3}
       propertyPath: m_Name

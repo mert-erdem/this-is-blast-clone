@@ -164,7 +164,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Scripts.ObjectPools.CannonPool
   poolObject: {fileID: 6312469668023050589, guid: 4ae705a45d8bc4a16ae61001edfa2519, type: 3}
-  poolSize: 50
+  poolSize: 100
   objectLifetime: 1
 --- !u!1 &576402315
 GameObject:
@@ -211,7 +211,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Scripts.ObjectPools.TargetBlockPool
   poolObject: {fileID: 7446177108270350586, guid: 6f60dda1bab144b19b780bbee776468c, type: 3}
-  poolSize: 200
+  poolSize: 300
   objectLifetime: 1
 --- !u!1 &884763187
 GameObject:

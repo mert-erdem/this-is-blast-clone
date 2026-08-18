@@ -11,13 +11,14 @@ GameObject:
   - component: {fileID: 1571646993428026427}
   - component: {fileID: 4158872844323378716}
   - component: {fileID: 6821703329286717354}
+  - component: {fileID: 5738211324679321064}
   m_Layer: 5
   m_Name: PanelNextLevel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1571646993428026427
 RectTransform:
   m_ObjectHideFlags: 0
@@ -60,7 +61,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.7294118, g: 0.990566, b: 0.627451, a: 0.7490196}
+  m_Color: {r: 0, g: 0, b: 0, a: 0.9019608}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -76,7 +77,19 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
+  m_PixelsPerUnitMultiplier: 10
+--- !u!114 &5738211324679321064
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 244669707127179682}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8074387647cfa4c71aa0ca09153c453f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Scripts.UI.Game.PanelNextLevel
 --- !u!1 &1725210412094386184
 GameObject:
   m_ObjectHideFlags: 0
@@ -359,6 +372,7 @@ GameObject:
   - component: {fileID: 2190153579029502323}
   - component: {fileID: 6052794304240597880}
   - component: {fileID: 8894972475187987786}
+  - component: {fileID: 6259013097329245779}
   m_Layer: 5
   m_Name: GameUI
   m_TagString: Untagged
@@ -449,6 +463,19 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!114 &6259013097329245779
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8033910317330486954}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ac9e5ee2218a409aa289ec989c72856, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Scripts.UI.GameCanvasController
+  panelNextLevel: {fileID: 5738211324679321064}
 --- !u!1 &8847833413104280047
 GameObject:
   m_ObjectHideFlags: 0
