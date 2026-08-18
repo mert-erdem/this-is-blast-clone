@@ -1,10 +1,12 @@
+using Game.Scripts.Core;
+
 namespace Game.Scripts.UI.Game
 {
     public class PanelNextLevel : Panel
     {
         public void OnButtonNextLevelPressed()
         {
-            // TODO: Load next level
+            GameManager.ActionNextLevel?.Invoke();
         }
     }
 }

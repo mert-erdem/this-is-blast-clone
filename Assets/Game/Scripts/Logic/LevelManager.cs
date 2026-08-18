@@ -26,6 +26,7 @@ namespace Game.Scripts.Logic
             GameManager.ActionGameOver += OnActionGameOver;
             GameManager.ActionRestartLevel += OnActionRestartLevel;
             GameManager.ActionLevelPassed += OnActionLevelPassed;
+            GameManager.ActionNextLevel += OnActionNextLevel;
         }
 
         private void Start()
@@ -49,6 +50,14 @@ namespace Game.Scripts.Logic
         private bool LoadLevel()
         {
             TextAsset levelJson = Resources.Load<TextAsset>($"level{_currentLevel}");
+
+            // There is no next level (back to the last level)
+            if (levelJson == null && _currentLevel > 1)
+            {
+                _currentLevel--;
+                SaveCurrentLevel();
+                levelJson = Resources.Load<TextAsset>($"level{_currentLevel}");
+            }
 
             if (levelJson == null)
             {
@@ -125,8 +134,19 @@ namespace Game.Scripts.Logic
 
         private void OnActionLevelPassed()
         {
+            _currentLevel++;
+            SaveCurrentLevel();
             _canSave = false;
             SaveManager.Clear();
+        }
+
+        private void OnActionNextLevel()
+        {
+            _levelLoaded = GenerateLevel();
+            _canSave = _levelLoaded;
+
+            if (_levelLoaded)
+                GameManager.ActionGameStart?.Invoke();
         }
 
         private void OnApplicationPause(bool pauseStatus)
@@ -140,11 +160,18 @@ namespace Game.Scripts.Logic
             Save();
         }
 
+        private void SaveCurrentLevel()
+        {
+            PlayerPrefs.SetInt("CurrentLevel", _currentLevel);
+            PlayerPrefs.Save();
+        }
+
         private void OnDestroy()
         {
             GameManager.ActionGameOver -= OnActionGameOver;
             GameManager.ActionRestartLevel -= OnActionRestartLevel;
             GameManager.ActionLevelPassed -= OnActionLevelPassed;
+            GameManager.ActionNextLevel -= OnActionNextLevel;
         }
     }
 }

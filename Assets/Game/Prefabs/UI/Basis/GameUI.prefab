@@ -485,7 +485,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 5738211324679321064}
         m_TargetAssemblyTypeName: Game.Scripts.UI.Game.PanelNextLevel, Assembly-CSharp
         m_MethodName: OnButtonNextLevelPressed
         m_Mode: 1
