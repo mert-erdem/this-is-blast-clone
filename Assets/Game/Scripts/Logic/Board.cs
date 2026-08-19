@@ -24,7 +24,7 @@ namespace Game.Scripts.Logic
         private Vector3 _bottomLeftCornerPos;
         
         private int _totalTargetBlocks;
-        private int _movingTargetBlocks;
+        private readonly HashSet<TargetBlock> _movingTargetBlocks = new();
         
         // Tween Related
         private const float TWEEN_SHIFT_DURATION = 0.4f;
@@ -47,7 +47,7 @@ namespace Game.Scripts.Logic
             CreateTargetBlocks(targetBlocks);
             
             _totalTargetBlocks = targetBlocks.Length;
-            _movingTargetBlocks = 0;
+            _movingTargetBlocks.Clear();
             
             GameManager.ActionGameOver -= OnActionGameOver;
             GameManager.ActionGameOver += OnActionGameOver;
@@ -100,7 +100,7 @@ namespace Game.Scripts.Logic
 
         public bool HasMovingBlocks()
         {
-            return _movingTargetBlocks > 0;
+            return _movingTargetBlocks.Count > 0;
         }
 
         /// <summary>
@@ -236,7 +236,7 @@ namespace Game.Scripts.Logic
 
             _bottomLeftCornerPos = boardVisualMeshRenderer.bounds.min;
             _totalTargetBlocks = targetBlocks.Length;
-            _movingTargetBlocks = 0;
+            _movingTargetBlocks.Clear();
 
             for (int i = 0; i < targetBlocks.Length; i++)
             {
@@ -313,6 +313,7 @@ namespace Game.Scripts.Logic
             if (_grid[i, j] != targetBlock)
                 return;
 
+            _movingTargetBlocks.Remove(targetBlock);
             targetBlock.OnDestroyed -= RemoveTargetBlock;
             _grid[i, j] = null;
             _totalTargetBlocks--;
@@ -377,13 +378,13 @@ namespace Game.Scripts.Logic
 
         private void PlayColumnShiftTween(TargetBlock targetBlock, Vector2Int gridPosition)
         {
-            _movingTargetBlocks++;
+            _movingTargetBlocks.Add(targetBlock);
             targetBlock.MoveTo(
                 GetTargetBlockPosition(gridPosition.x, gridPosition.y),
                 TWEEN_SHIFT_DURATION,
                 () =>
                 {
-                    _movingTargetBlocks--;
+                    _movingTargetBlocks.Remove(targetBlock);
                     OnBoardStateChanged?.Invoke();
                 });
         }
@@ -434,7 +435,7 @@ namespace Game.Scripts.Logic
             }
 
             _totalTargetBlocks = 0;
-            _movingTargetBlocks = 0;
+            _movingTargetBlocks.Clear();
         }
 
         private void OnActionGameOver()
@@ -445,7 +446,7 @@ namespace Game.Scripts.Logic
         private void OnActionLevelPassed()
         {
             _totalTargetBlocks = 0;
-            _movingTargetBlocks = 0;
+            _movingTargetBlocks.Clear();
         }
 
         private void OnDestroy()
