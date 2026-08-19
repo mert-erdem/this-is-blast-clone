@@ -27,8 +27,8 @@ namespace Game.Scripts.Logic
         private int _movingTargetBlocks;
         
         // Tween Related
-        private const float TWEEN_SHIFT_DURATION = 0.5f;
-        private const float TWEEN_DESTROY_DURATION = 0.1f;
+        private const float TWEEN_SHIFT_DURATION = 0.4f;
+        private const float TWEEN_DESTROY_DURATION = 0.08f;
         
         // External Classes
         private ObjectPool<TargetBlock, TargetBlockPool> _targetBlockPool;

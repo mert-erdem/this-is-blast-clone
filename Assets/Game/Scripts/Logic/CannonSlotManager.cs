@@ -19,7 +19,7 @@ namespace Game.Scripts.Logic
         private Cannon[] _cannonSlots;
         
         // Tween Related
-        private const float TWEEN_SLOT_DURATION = 0.5f;
+        private const float TWEEN_SLOT_DURATION = 0.4f;
         
         public void Initialize()
         {

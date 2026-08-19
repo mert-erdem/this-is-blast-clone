@@ -14,7 +14,7 @@ namespace Game.Scripts.Logic
         [SerializeField] private Board board;
         [SerializeField] private CannonSlotManager cannonSlotManager;
         
-        private const float FIRE_INTERVAL = 0.2f;
+        private const float FIRE_INTERVAL = 0.15f;
         private static readonly WaitForSeconds FireIntervalWait = new(FIRE_INTERVAL);
         
         private readonly HashSet<Cannon> _firingCannons = new();

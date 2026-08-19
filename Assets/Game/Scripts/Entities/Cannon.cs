@@ -36,10 +36,10 @@ namespace Game.Scripts.Entities
         // Tween Related
         private const float REMOVE_TWEEN_OVERSHOOT = 2.5f;
         private const float QUEUE_SHIFT_TWEEN_OVERSHOOT = 2f;
-        private const float LOOK_TWEEN_DURATION = 0.5f;
-        private const float RETURN_LOOK_TWEEN_DURATION = 0.25f;
+        private const float LOOK_TWEEN_DURATION = 0.35f;
+        private const float RETURN_LOOK_TWEEN_DURATION = 0.18f;
         private const float FIRE_RECOIL_DISTANCE = 0.2f;
-        private const float FIRE_RECOIL_DURATION = 0.12f;
+        private const float FIRE_RECOIL_DURATION = 0.08f;
         
         private Tween _slotTween, _queueTween, _lookTween, _fireTween;
         private Vector3 _initialScale;

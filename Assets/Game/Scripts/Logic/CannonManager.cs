@@ -22,8 +22,8 @@ namespace Game.Scripts.Logic
         
         private ObjectPool<Cannon, CannonPool> _cannonPool;
         
-        private const float TWEEN_REMOVE_DURATION = 0.2f;
-        private const float TWEEN_QUEUE_SHIFT_DURATION = 1.5f;
+        private const float TWEEN_REMOVE_DURATION = 0.15f;
+        private const float TWEEN_QUEUE_SHIFT_DURATION = 1.1f;
 
         public void Initialize(int queueWidth, CannonData[] cannons)
         {
