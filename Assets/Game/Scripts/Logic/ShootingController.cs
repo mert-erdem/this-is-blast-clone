@@ -27,6 +27,11 @@ namespace Game.Scripts.Logic
             GameManager.ActionLevelPassed += OnActionLevelPassed;
         }
 
+        private void Start()
+        {
+            ReevaluateCannons();
+        }
+
         private void TryFire(Cannon cannon)
         {
             if (cannon == null || !cannon.HasAmmo || !cannon.IsReadyToFire)
@@ -50,6 +55,7 @@ namespace Game.Scripts.Logic
             {
                 bool isFireComplete = false;
                 cannon.Fire(target, () => isFireComplete = true);
+                
                 yield return new WaitUntil(() => isFireComplete || cannon == null || !cannon.IsSpawned);
 
                 if (cannon != null && cannon.IsSpawned && cannon.HasAmmo)
@@ -69,6 +75,9 @@ namespace Game.Scripts.Logic
 
         private void ReevaluateCannons()
         {
+            if (cannonSlotManager.CannonSlots == null)
+                return;
+
             for (int i = 0; i < cannonSlotManager.CannonSlots.Count; i++)
             {
                 Cannon cannon = cannonSlotManager.CannonSlots[i];

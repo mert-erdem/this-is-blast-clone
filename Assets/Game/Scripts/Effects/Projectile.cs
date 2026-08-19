@@ -16,7 +16,7 @@ namespace Game.Scripts.Effects
         public GameObject GameObject => gameObject;
         
         // Tween Related
-        private const float MOVE_TWEEN_DURATION = 0.2f;
+        public const float MOVE_TWEEN_DURATION = 0.2f;
         private Tween _moveTween;
 
         public void Initialize(
@@ -27,6 +27,11 @@ namespace Game.Scripts.Effects
         {
             Paint(color);
             PlayMoveTween(startPosition, targetPosition, MOVE_TWEEN_DURATION, onTweenComplete);
+        }
+
+        public float GetMoveTweenDuration()
+        {
+            return MOVE_TWEEN_DURATION;
         }
 
         private void PlayMoveTween(Vector3 startPosition, Vector3 targetPosition, float duration, Action onComplete = null)

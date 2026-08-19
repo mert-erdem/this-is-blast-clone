@@ -99,6 +99,7 @@ namespace Game.Scripts.Entities
 
             targetBlock.IsReserved = true;
             IsReadyToFire = false;
+
             LookTargetTween(targetBlock.GetPosition(), () =>
             {
                 if (targetBlock != null && targetBlock.IsSpawned && targetBlock.GetHealth() > 0 && HasAmmo)
@@ -114,10 +115,16 @@ namespace Game.Scripts.Entities
                         return;
                     }
 
-                    SetAmmoText(_ammo - 1); // Prevents lost shots during save
-                    PlayFireRecoilTween();
-
                     Vector3 targetPosition = targetBlock.GetPosition();
+
+                    _ammo--;
+                    SetAmmoText(_ammo);
+
+                    targetBlock.TakeDamage(DAMAGE, projectile.GetMoveTweenDuration());
+                    targetBlock.IsReserved = false;
+                    PlayFireRecoilTween();
+                    IsReadyToFire = HasAmmo;
+                    onComplete?.Invoke();
 
                     projectile.Initialize(
                         transformVisual.position,
@@ -125,17 +132,7 @@ namespace Game.Scripts.Entities
                         _color,
                         () =>
                         {
-                            _ammo--; // Prevents lost shots during save
-
-                            if (targetBlock != null && targetBlock.IsSpawned && targetBlock.GetHealth() > 0)
-                                targetBlock.TakeDamage(DAMAGE);
-
-                            if (targetBlock != null)
-                                targetBlock.IsReserved = false;
-
                             ProjectilePool.Instance.PullObjectBackImmediate(projectile);
-                            IsReadyToFire = HasAmmo;
-                            onComplete?.Invoke();
                         });
 
                     return;

@@ -18,7 +18,7 @@ namespace Game.Scripts.Entities
         [SerializeField] private MeshRenderer meshRenderer;
         [SerializeField] private BlockColorSo blockColorSo;
         
-        public event Action<TargetBlock> OnDestroyed;
+        public event Action<TargetBlock, float> OnDestroyed;
         
         public bool IsFireable => IsSpawned && !_isMoving && !IsReserved;
         public bool IsReserved { get; set; }
@@ -62,13 +62,13 @@ namespace Game.Scripts.Entities
             SetScale(_health, 0f);
         }
 
-        public void TakeDamage(int amount)
+        public void TakeDamage(int amount, float dieTweenDelay = 0f)
         {
             _health -= amount;
 
             if (_health <= 0)
             {
-                OnDestroyed?.Invoke(this);
+                OnDestroyed?.Invoke(this, dieTweenDelay);
                 return;
             }
 
@@ -115,7 +115,7 @@ namespace Game.Scripts.Entities
                 });
         }
 
-        public void PlayDieTween(float duration, Action onComplete = null)
+        public void PlayDieTween(float duration, Action onComplete = null, float delay = 0f)
         {
             _scaleTween?.Kill();
 
@@ -123,6 +123,7 @@ namespace Game.Scripts.Entities
             
             _scaleTween = transform
                 .DOScale(Vector3.zero, duration)
+                .SetDelay(Mathf.Max(0f, delay))
                 .SetEase(Ease.InBack)
                 .OnComplete(() =>
                 {

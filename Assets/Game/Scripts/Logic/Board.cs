@@ -28,7 +28,7 @@ namespace Game.Scripts.Logic
         
         // Tween Related
         private const float TWEEN_SHIFT_DURATION = 0.5f;
-        private const float TWEEN_DESTROY_DURATION = 0.2f;
+        private const float TWEEN_DESTROY_DURATION = 0.1f;
         
         // External Classes
         private ObjectPool<TargetBlock, TargetBlockPool> _targetBlockPool;
@@ -300,7 +300,7 @@ namespace Game.Scripts.Logic
             }
         }
         
-        private void RemoveTargetBlock(TargetBlock targetBlock)
+        private void RemoveTargetBlock(TargetBlock targetBlock, float dieTweenDelay)
         {
             if (targetBlock == null)
                 return;
@@ -316,22 +316,27 @@ namespace Game.Scripts.Logic
             targetBlock.OnDestroyed -= RemoveTargetBlock;
             _grid[i, j] = null;
             _totalTargetBlocks--;
+            ShiftColumnForward(i, j, false); // Data changing immediately
 
-            targetBlock.PlayDieTween(TWEEN_DESTROY_DURATION, () =>
-            {
-                _targetBlockPool.PullObjectBackImmediate(targetBlock);
-            });
+            bool isLevelPassed = _totalTargetBlocks == 0;
 
-            ShiftColumnForward(i, j);
-            
-            // WIN CONDITION
-            if (_totalTargetBlocks == 0)
-            {
-                GameManager.ActionLevelPassed?.Invoke();
-            }
+            targetBlock.PlayDieTween(
+                TWEEN_DESTROY_DURATION,
+                () =>
+                {
+                    _targetBlockPool.PullObjectBackImmediate(targetBlock);
+                    PlayColumnShiftTweens(i, j); // Shifting tween after data changing
+
+                    // WIN CONDITION
+                    if (isLevelPassed)
+                    {
+                        GameManager.ActionLevelPassed?.Invoke();
+                    }
+                },
+                dieTweenDelay);
         }
 
-        private void ShiftColumnForward(int i, int emptyJ)
+        private void ShiftColumnForward(int i, int emptyJ, bool playTweens = true)
         {
             int height = _grid.GetLength(1);
 
@@ -347,18 +352,40 @@ namespace Game.Scripts.Logic
 
                 Vector2Int newGridPosition = new Vector2Int(i, j - 1);
                 targetBlock.SetGridPosition(newGridPosition);
-                _movingTargetBlocks++;
-                targetBlock.MoveTo(
-                    GetTargetBlockPosition(newGridPosition.x, newGridPosition.y),
-                    TWEEN_SHIFT_DURATION,
-                    () =>
-                    {
-                        _movingTargetBlocks--;
-                        OnBoardStateChanged?.Invoke();
-                    });
+
+                if (playTweens)
+                    PlayColumnShiftTween(targetBlock, newGridPosition);
             }
 
             OnBoardStateChanged?.Invoke();
+        }
+
+        private void PlayColumnShiftTweens(int i, int fromJ)
+        {
+            int height = _grid.GetLength(1);
+
+            for (int j = fromJ; j < height; j++)
+            {
+                TargetBlock targetBlock = _grid[i, j];
+
+                if (targetBlock == null || !targetBlock.IsSpawned || targetBlock.GetHealth() <= 0)
+                    continue;
+
+                PlayColumnShiftTween(targetBlock, new Vector2Int(i, j));
+            }
+        }
+
+        private void PlayColumnShiftTween(TargetBlock targetBlock, Vector2Int gridPosition)
+        {
+            _movingTargetBlocks++;
+            targetBlock.MoveTo(
+                GetTargetBlockPosition(gridPosition.x, gridPosition.y),
+                TWEEN_SHIFT_DURATION,
+                () =>
+                {
+                    _movingTargetBlocks--;
+                    OnBoardStateChanged?.Invoke();
+                });
         }
 
         private static int CalculateBoardHeight(int targetBlockCount)
