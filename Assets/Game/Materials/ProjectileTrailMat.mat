@@ -20,7 +20,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: ProjectileMat
+  m_Name: ProjectileTrailMat
   m_Shader: {fileID: 4800000, guid: 7ec02dca86214ed19bf1b4281340ace0, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -114,7 +114,7 @@ Material:
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
-    - _GlowIntensity: 3
+    - _GlowIntensity: 8
     - _Metallic: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.005
