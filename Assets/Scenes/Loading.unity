@@ -211,7 +211,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Scripts.ObjectPools.TargetBlockPool
   poolObject: {fileID: 7446177108270350586, guid: 6f60dda1bab144b19b780bbee776468c, type: 3}
-  poolSize: 300
+  poolSize: 500
   objectLifetime: 1
 --- !u!1 &884763187
 GameObject:
