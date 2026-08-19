@@ -26,9 +26,12 @@ namespace Game.Scripts.Entities
         public bool IsQueueTweening => _queueTween != null;
 
         private const int DAMAGE = 1;
+        private const float QUEUED_AMMO_TEXT_ALPHA = 0.2f;
+        private const float ACTIVE_AMMO_TEXT_ALPHA = 1f;
         
         private BlockColor _color;
         private int _ammo;
+        private CannonState _state;
 
         // Tween Related
         private const float REMOVE_TWEEN_OVERSHOOT = 2.5f;
@@ -62,6 +65,7 @@ namespace Game.Scripts.Entities
             
             Paint(_color);
             SetAmmoText(_ammo);
+            SetState(CannonState.Queued);
         }
 
         public BlockColor GetColor()
@@ -72,6 +76,17 @@ namespace Game.Scripts.Entities
         public int GetAmmo()
         {
             return _ammo;
+        }
+
+        public CannonState GetState()
+        {
+            return _state;
+        }
+        
+        public void SetState(CannonState state)
+        {
+            _state = state;
+            ApplyStateVisuals();
         }
 
         public void Fire(TargetBlock targetBlock, Action onComplete = null)
@@ -135,11 +150,13 @@ namespace Game.Scripts.Entities
 
         public void MoveToSlot(Vector3 slotPosition, float duration, Action onComplete = null)
         {
+            SetState(CannonState.Slotted);
             PlaySlotRepositionTween(slotPosition, duration, onComplete);
         }
 
         public void PlayQueueShiftTween(Vector3 queuePosition, float duration, Action onComplete = null)
         {
+            SetState(CannonState.Queued);
             _queueTween?.Kill();
             _queueTween = null;
 
@@ -288,6 +305,29 @@ namespace Game.Scripts.Entities
         private void SetAmmoText(int ammo)
         {
             textAmmo.text = ammo.ToString();
+        }
+
+        private void SetAmmoTextAlpha(float a)
+        {
+            Color color = textAmmo.color;
+            color.a = a;
+            textAmmo.color = color;
+        }
+
+        private void ApplyStateVisuals()
+        {
+            switch (_state)
+            {
+                case CannonState.Slotted:
+                case CannonState.Selectable:
+                    SetAmmoTextAlpha(ACTIVE_AMMO_TEXT_ALPHA);
+                    break;
+                case CannonState.Queued:
+                    SetAmmoTextAlpha(QUEUED_AMMO_TEXT_ALPHA);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
         
         public void OnSpawn()

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Game.Scripts.Core;
 using Game.Scripts.Data;
 using Game.Scripts.Entities;
+using Game.Scripts.Enums;
 using Game.Scripts.ObjectPools;
 using UnityEngine;
 
@@ -58,6 +59,8 @@ namespace Game.Scripts.Logic
                 _activeCannons.Add(cannon);
             }
 
+            RefreshQueueStates();
+
             cannonSlotManager.OnCannonRemoved -= RemoveCannon;
             cannonSlotManager.OnCannonRemoved += RemoveCannon;
             GameManager.ActionGameOver -= ClearAllCannons;
@@ -69,6 +72,9 @@ namespace Game.Scripts.Logic
         public bool TrySelect(Cannon cannon)
         {
             if (cannon == null || _cannonQueues == null)
+                return false;
+
+            if (cannon.GetState() != CannonState.Selectable)
                 return false;
 
             foreach (Queue<Cannon> queue in _cannonQueues)
@@ -167,6 +173,8 @@ namespace Game.Scripts.Logic
                 _cannonQueues[cannonSaveData.queueIndex].Enqueue(cannon);
                 _activeCannons.Add(cannon);
             }
+
+            RefreshQueueStates();
         }
         
         /// <summary>
@@ -275,7 +283,29 @@ namespace Game.Scripts.Logic
 
                 cannon.PlayQueueShiftTween(
                     GetCannonPosition(queueIndex, queueDepth, _cannonQueues.Length),
-                    TWEEN_QUEUE_SHIFT_DURATION);
+                    TWEEN_QUEUE_SHIFT_DURATION,
+                    RefreshQueueStates);
+            }
+        }
+
+        // Centralized refreshing better for consistency for now
+        private void RefreshQueueStates()
+        {
+            if (_cannonQueues == null)
+                return;
+
+            foreach (Queue<Cannon> queue in _cannonQueues)
+            {
+                bool isFirstCannon = true;
+
+                foreach (Cannon cannon in queue)
+                {
+                    if (cannon == null)
+                        continue;
+
+                    cannon.SetState(isFirstCannon ? CannonState.Selectable : CannonState.Queued);
+                    isFirstCannon = false;
+                }
             }
         }
 
