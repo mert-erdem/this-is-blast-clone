@@ -31,7 +31,7 @@ namespace Game.Scripts.Entities
         private Vector2Int _gridPosition;
         
         // Tween Related
-        private const float TWEEN_DESTROY_DURATION = 0.2f;
+        private const float TWEEN_DESTROY_DURATION = 0.1f;
         private Tween _moveTween;
         private Tween _scaleTween;
         private Tween _visualScaleTween;
