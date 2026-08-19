@@ -28,7 +28,6 @@ namespace Game.Scripts.Logic
         
         // Tween Related
         private const float TWEEN_SHIFT_DURATION = 0.4f;
-        private const float TWEEN_DESTROY_DURATION = 0.08f;
         
         // External Classes
         private ObjectPool<TargetBlock, TargetBlockPool> _targetBlockPool;
@@ -322,7 +321,6 @@ namespace Game.Scripts.Logic
             bool isLevelPassed = _totalTargetBlocks == 0;
 
             targetBlock.PlayDieTween(
-                TWEEN_DESTROY_DURATION,
                 () =>
                 {
                     _targetBlockPool.PullObjectBackImmediate(targetBlock);

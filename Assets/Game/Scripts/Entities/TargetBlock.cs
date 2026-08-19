@@ -31,6 +31,7 @@ namespace Game.Scripts.Entities
         private Vector2Int _gridPosition;
         
         // Tween Related
+        private const float TWEEN_DESTROY_DURATION = 0.2f;
         private Tween _moveTween;
         private Tween _scaleTween;
         private Tween _visualScaleTween;
@@ -115,14 +116,14 @@ namespace Game.Scripts.Entities
                 });
         }
 
-        public void PlayDieTween(float duration, Action onComplete = null, float delay = 0f)
+        public void PlayDieTween(Action onComplete = null, float delay = 0f)
         {
             _scaleTween?.Kill();
 
             _isMoving = true;
             
             _scaleTween = transform
-                .DOScale(Vector3.zero, duration)
+                .DOScale(Vector3.zero, TWEEN_DESTROY_DURATION)
                 .SetDelay(Mathf.Max(0f, delay))
                 .SetEase(Ease.InBack)
                 .OnComplete(() =>

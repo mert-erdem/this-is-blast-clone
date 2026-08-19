@@ -16,7 +16,7 @@ namespace Game.Scripts.Effects
         public GameObject GameObject => gameObject;
         
         // Tween Related
-        private const float MOVE_TWEEN_DURATION = 0.15f;
+        private const float MOVE_TWEEN_DURATION = 0.2f;
         private Tween _moveTween;
 
         public void Initialize(
