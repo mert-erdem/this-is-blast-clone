@@ -114,8 +114,7 @@ namespace Game.Scripts.Entities
                         return;
                     }
 
-                    _ammo--;
-                    SetAmmoText(_ammo);
+                    SetAmmoText(_ammo - 1); // Prevents lost shots during save
                     PlayFireRecoilTween();
 
                     Vector3 targetPosition = targetBlock.GetPosition();
@@ -126,6 +125,8 @@ namespace Game.Scripts.Entities
                         _color,
                         () =>
                         {
+                            _ammo--; // Prevents lost shots during save
+
                             if (targetBlock != null && targetBlock.IsSpawned && targetBlock.GetHealth() > 0)
                                 targetBlock.TakeDamage(DAMAGE);
 
