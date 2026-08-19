@@ -35,9 +35,12 @@ namespace Game.Scripts.Entities
         private const float QUEUE_SHIFT_TWEEN_OVERSHOOT = 2f;
         private const float LOOK_TWEEN_DURATION = 0.5f;
         private const float RETURN_LOOK_TWEEN_DURATION = 0.25f;
+        private const float FIRE_RECOIL_DISTANCE = 0.2f;
+        private const float FIRE_RECOIL_DURATION = 0.12f;
         
-        private Tween _slotTween, _queueTween, _lookTween;
+        private Tween _slotTween, _queueTween, _lookTween, _fireTween;
         private Vector3 _initialScale;
+        private Vector3 _initialVisualLocalPosition;
         private Quaternion _initialVisualRotation;
     
         public void Initialize(CannonData data)
@@ -48,8 +51,11 @@ namespace Game.Scripts.Entities
             _queueTween = null;
             _lookTween?.Kill();
             _lookTween = null;
+            _fireTween?.Kill();
+            _fireTween = null;
             IsReadyToFire = false;
             transform.localScale = _initialScale;
+            transformVisual.localPosition = _initialVisualLocalPosition;
             
             _color = data.color;
             _ammo = data.ammo;
@@ -95,6 +101,7 @@ namespace Game.Scripts.Entities
 
                     _ammo--;
                     SetAmmoText(_ammo);
+                    PlayFireRecoilTween();
 
                     Vector3 targetPosition = targetBlock.GetPosition();
 
@@ -200,6 +207,8 @@ namespace Game.Scripts.Entities
             _queueTween = null;
             _lookTween?.Kill();
             _lookTween = null;
+            _fireTween?.Kill();
+            _fireTween = null;
             IsReadyToFire = false;
 
             if (duration <= 0f)
@@ -251,6 +260,26 @@ namespace Game.Scripts.Entities
                 });
         }
 
+        private void PlayFireRecoilTween()
+        {
+            _fireTween?.Kill();
+
+            Vector3 recoilDirection = transform.InverseTransformDirection(-transformVisual.forward);
+            Vector3 recoilPosition = _initialVisualLocalPosition + recoilDirection * FIRE_RECOIL_DISTANCE;
+
+            transformVisual.localPosition = _initialVisualLocalPosition;
+            
+            _fireTween = transformVisual
+                .DOLocalMove(recoilPosition, FIRE_RECOIL_DURATION * 0.5f)
+                .SetEase(Ease.OutQuad)
+                .SetLoops(2, LoopType.Yoyo)
+                .OnComplete(() =>
+                {
+                    transformVisual.localPosition = _initialVisualLocalPosition;
+                    _fireTween = null;
+                });
+        }
+
         private void Paint(BlockColor blockColor)
         {
             meshRenderer.sharedMaterial = blockColorSo.GetMaterial(blockColor);
@@ -272,10 +301,14 @@ namespace Game.Scripts.Entities
             _queueTween = null;
             _lookTween?.Kill();
             _lookTween = null;
+            _fireTween?.Kill();
+            _fireTween = null;
 
+            _initialVisualLocalPosition = transformVisual.localPosition;
             _initialVisualRotation = transformVisual.localRotation;
 
             transform.localScale = _initialScale;
+            transformVisual.localPosition = _initialVisualLocalPosition;
             transformVisual.localRotation = _initialVisualRotation;
             IsReadyToFire = false;
         }
@@ -288,7 +321,10 @@ namespace Game.Scripts.Entities
             _queueTween = null;
             _lookTween?.Kill();
             _lookTween = null;
+            _fireTween?.Kill();
+            _fireTween = null;
             transform.localScale = _initialScale;
+            transformVisual.localPosition = _initialVisualLocalPosition;
             transformVisual.localRotation = _initialVisualRotation;
             IsReadyToFire = false;
         }
