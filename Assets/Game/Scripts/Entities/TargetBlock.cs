@@ -115,7 +115,7 @@ namespace Game.Scripts.Entities
                 });
         }
 
-        public void PlayDestroyTween(float duration, Action onComplete = null)
+        public void PlayDieTween(float duration, Action onComplete = null)
         {
             _scaleTween?.Kill();
 

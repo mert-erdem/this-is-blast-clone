@@ -314,26 +314,21 @@ namespace Game.Scripts.Logic
                 return;
 
             targetBlock.OnDestroyed -= RemoveTargetBlock;
-            _movingTargetBlocks++;
+            _grid[i, j] = null;
+            _totalTargetBlocks--;
 
-            targetBlock.PlayDestroyTween(TWEEN_DESTROY_DURATION, () =>
+            targetBlock.PlayDieTween(TWEEN_DESTROY_DURATION, () =>
             {
-                _movingTargetBlocks--;
-
-                if (_grid[i, j] != targetBlock)
-                    return;
-
-                _grid[i, j] = null;
-                _totalTargetBlocks--;
                 _targetBlockPool.PullObjectBackImmediate(targetBlock);
-                ShiftColumnForward(i, j);
-                
-                // WIN CONDITION
-                if (_totalTargetBlocks == 0)
-                {
-                    GameManager.ActionLevelPassed?.Invoke();
-                }
             });
+
+            ShiftColumnForward(i, j);
+            
+            // WIN CONDITION
+            if (_totalTargetBlocks == 0)
+            {
+                GameManager.ActionLevelPassed?.Invoke();
+            }
         }
 
         private void ShiftColumnForward(int i, int emptyJ)
